@@ -2,7 +2,7 @@ package Class::Fields::Inspector;
 
 use strict;
 
-use vars qw(@ISA @EXPORT);
+use vars qw(@ISA @EXPORT $VERSION);
 
 $VERSION = 0.01;
 
