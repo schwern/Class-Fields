@@ -11,7 +11,7 @@ use Carp::Assert;
 
 use constant SUCCESS => 1;
 
-$VERSION = "0.14";
+$VERSION = "0.15";
 
 sub import {
     my($class, @fields) = @_;

@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.96';
+$VERSION = '1.97';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;

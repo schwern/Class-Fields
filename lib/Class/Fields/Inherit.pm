@@ -7,7 +7,7 @@ use vars qw(@ISA @EXPORT $VERSION);
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 require Exporter;
 @ISA = qw(Exporter);
