@@ -4,7 +4,8 @@ Makefile.PL
 t/fields.t
 t/base.t
 t/members.t
-t/Inheritance.t
+t/Class-Fields.t
+t/Inherit.t
 lib/Class/Fields/Inherit.pm
 lib/Class/Fields.pm
 lib/Class/Fields/Inspector.pm
