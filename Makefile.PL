@@ -9,6 +9,8 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
+require 5.005;
+
 $PACKAGE = 'Class::Fields';
 ($PACKAGE_FILE) = $PACKAGE =~ /::([^:]+)/;
 $LAST_API_CHANGE = 0;
@@ -32,6 +34,7 @@ WriteMakefile(
 	VERSION_FROM       	=> 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM          	=> { Carp 		=> 0,
 						     Exporter 	=> 0,
+							 constants	=> 0,
 						   },
 	'dist'      		=> { COMPRESS 	=> 'gzip -9',
                              SUFFIX   	=> '.gz',
