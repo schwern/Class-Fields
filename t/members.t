@@ -89,8 +89,8 @@ use Class::Fields::Inheritance qw(:Attribs %attr);
 # Test inheritance of protected fields.
 package Bar;
 
-use fields qw(Hey _ar);
 use base qw(Foo);
+use fields qw(Hey _ar);
 
 
 package main;
