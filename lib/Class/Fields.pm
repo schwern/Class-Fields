@@ -21,7 +21,7 @@ require Exporter;
               is_field
             );
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
@@ -412,28 +412,37 @@ identical methods.
 
 *Perfect* for an autoloader!
 
+    package Test::Autoload::Example;
+    use base qw(Class::Fields);
+    use public qw(this that up down);
+    use private qw(_left _right);
+
     sub AUTOLOAD {
         my $self = $_[0];
         my $class = ref $self;
 
         my($field) = $AUTOLOAD =~ /::([^:]+)$/;
 
+        return if $field eq 'DESTROY';
+
         # If its a public field, set up a named closure as its
         # data accessor.
-        if( $self->is_public($field) ) {
-            *{$class.'::$field'} = sub {
+        if ( $self->is_public($field) ) {
+            *{$class."::$field"} = sub {
                 my($self) = shift;
-                if(@_) {
+                if (@_) {
                     $self->{$field} = shift;
                 }
                 return $self->{$field};
             };
-            goto &{$class.'::$field'};
-        }
-        else {
-             die "$field is not a public data member of $class";
+            goto &{$class."::$field"};
+        } else {
+            die "'$field' is not a public data member of '$class'";
         }
     }
+
+L<Class::Accessor/EXAMPLES> for a much simpler version of this same
+technique.
 
 =back
 
@@ -443,9 +452,14 @@ Michael G Schwern <schwern@pobox.com> with much code liberated from the
 original fields.pm.
 
 
+=head1 THANKS
+
+Thanks to Tels for his big feature request/bug report.
+
+
 =head1 SEE ALSO
 
-L<fields.pm>, L<public.pm>, L<private.pm>, L<protected.pm>
+L<fields>, L<public>, L<private>, L<protected>
 
 =cut
 
