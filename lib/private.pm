@@ -4,23 +4,24 @@ use strict;
 
 use vars qw($VERSION);
 
-$VERSION = 0.02;
+$VERSION = 0.04;
 
-use Class::Fields qw(:Attribs :Fields);
+use Class::Fields::Fuxor;
+use Class::Fields::Attribs;
 
 sub import {
-	#Dump the class.
-	shift;
-	
-	my $pack = caller;
-	foreach my $field (@_) {
-		unless( $field =~ /^_/ ) {
-			require Carp;
-		 	Carp::carp("Private data fields should be named with a ",
-		 			   "leading underscore") if $^W;
-		}
-	}
-	add_fields($pack, PRIVATE, @_);
+    #Dump the class.
+    shift;
+    
+    my $pack = caller;
+    foreach my $field (@_) {
+        unless( $field =~ /^_/ ) {
+            require Carp;
+            Carp::carp("Private data fields should be named with a ",
+                       "leading underscore") if $^W;
+        }
+    }
+    add_fields($pack, PRIVATE, @_);
 }
 
 
@@ -41,6 +42,19 @@ __END__
 
 
 =head1 DESCRIPTION
+
+=over 4
+
+=item I<Private member.> 
+
+Internal data or functionality.  An attribute or method only directly
+accessible to the methods of the same class and inaccessible from any
+other scope.  In Perl, notionally private attributes and members are
+conventionally given names beginning with an underscore.
+
+From B<"Object Oriented Perl"> by Damian Conway
+
+=back
 
 private.pm adds a list of keys as private data members to the current
 class.  See L<public> for more info.
@@ -86,6 +100,6 @@ Michae G Schwern <schwern@pobox.com>
 
 =head1 SEE ALSO
 
-L<public>, L<protected>, L<fields>, L<base>, L<Class::Fields::Inspector>
+L<public>, L<protected>, L<fields>, L<base>, L<Class::Fields>
 
 =cut
