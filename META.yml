@@ -1,12 +1,14 @@
+# http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Class-Fields
-version:      0.16
+version:      0.20
 version_from: lib/Class/Fields.pm
 installdirs:  perl
 requires:
-    constant:                      0
-    Carp::Assert:                  0
+    base:                          2
     Carp:                          0
+    Carp::Assert:                  0
+    constant:                      0
 
 distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.10_07
+generated_by: ExtUtils::MakeMaker version 6.16
