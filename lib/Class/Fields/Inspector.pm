@@ -1,23 +1,33 @@
 package Class::Fields::Inspector;
 
 use strict;
+no strict 'refs';
 
 use vars qw(@ISA @EXPORT $VERSION);
-
-$VERSION = 0.01;
+@ISA = qw(Exporter);
 
 # is_* will push themselves onto @EXPORT
+@EXPORT = qw( field_attrib_mask
+			  field_attribs
+			  dump_all_attribs
+			  show_fields
+			);
+
+$VERSION = 0.01;
 
 use Class::Fields qw(:Attribs :Fields);
 
 
 # Mapping of attribute names to their internal values.
-my %NAMED_ATTRIBS = (
-					 Public 	=> 	PUBLIC,
-					 Private	=> 	PRIVATE,
-					 Inherited	=>	INHERITED,
-					 Protected	=>	PROTECTED,
-					);
+use vars qw(%NAMED_ATTRIBS);
+BEGIN {
+	%NAMED_ATTRIBS = (
+					  Public 	=> 	PUBLIC,
+					  Private	=> 	PRIVATE,
+					  Inherited	=>	INHERITED,
+					  Protected	=>	PROTECTED,
+					 );
+}
 
 =pod
 
@@ -30,15 +40,15 @@ Class::Fields::Inspector - Inspect the fields of a class.
 
     use Class::Fields::Inspector;
 
-    is_public	($class, $field);
-    is_private	($class, $field);
+    is_public   ($class, $field);
+    is_private  ($class, $field);
     is_protected($class, $field);
     is_inherited($class, $field);
 
     @fields = show_fields($class, @attribs);
 
-    $attrib 	= field_attrib_mask($class, $field);
-    @attribs	= field_attribs($class, $field);
+    $attrib     = field_attrib_mask($class, $field);
+    @attribs    = field_attribs($class, $field);
 
     dump_all_attribs(@classes);
 
@@ -55,7 +65,8 @@ Class::Fields::Inspector - Inspect the fields of a class.
 =head1 DESCRIPTION
 
 A collection of utility functions/methods for examining the data
-fields of a class which uses the %FIELDS hash.
+members of a class.  It provides a nice, high-level interface that
+should stand the test of time and Perl upgrades nicely.
 
 The functions in this module also serve double-duty as methods and can
 be used that way by having your module inherit from it.  For example:
@@ -94,7 +105,8 @@ A bunch of functions to quickly check if a given $field in a given $class
 is of a given type.  For example...
 
   package Foo;
-  use fields qw( Ford _Nixon );
+  use public  qw( Ford   );
+  use private qw( _Nixon );
 
   package Bar;
   use base qw(Foo);
@@ -102,8 +114,8 @@ is of a given type.  For example...
   # This will print only 'Ford is public' because Ford is a public
   # field of the class Bar.  _Nixon is a private field of the class
   # Foo, but it is not inherited.
-  print 'Ford is public' 		if is_public('Bar', 'Ford');
-  print '_Nixon is inherited' 	if is_inherited('Foo', '_Nixon');
+  print 'Ford is public'        if is_public('Bar', 'Ford');
+  print '_Nixon is inherited'   if is_inherited('Foo', '_Nixon');
 
 
 =cut
@@ -111,34 +123,38 @@ is of a given type.  For example...
 # Generate is_public, etc... from %NAMED_ATTRIBS For each attribute we
 # generate a simple named closure.  Seemed the laziest way to do it,
 # lets us update %NAMED_ATTRIBS without having to make a new function.
-while( my($attrib, $attr_val) = each %NAMED_ATTRIBS ) {
+while ( my($attrib, $attr_val) = each %NAMED_ATTRIBS ) {
+	no strict 'refs';
 	my $fname = 'is_'.lc $attrib;
 	*{$fname} = sub {
 		my($proto, $field) = @_;
-
+		
 		# So we can be called either as a function or a method from
 		# a class name or an object.
 		my($class) = ref $proto || $proto;
 		my $fattrib = field_attrib_mask($class, $field);
 		
+		return unless defined $fattrib;
+		
 		return $fattrib & $attr_val;
 	};
-
+	  
 	push @EXPORT, $fname;
 }
+
 
 =pod
 
 =item B<show_fields>
 
-  @all_fields	= show_fields($class);
-  @fields 		= show_fields($class, @attribs);
+  @all_fields   = show_fields($class);
+  @fields       = show_fields($class, @attribs);
         or
-  @all_fields 	= $obj->show_fields;
-  @fields		= $obj->show_fields(@attribs);
+  @all_fields   = $obj->show_fields;
+  @fields       = $obj->show_fields(@attribs);
         or
-  @all_fields	= Class->show_fields;
-  @fields		= Class->show_fields(@attribs);
+  @all_fields   = Class->show_fields;
+  @fields       = Class->show_fields(@attribs);
 
 This will list all fields in a given $class that have the given set of
 @attribs.  If @attribs is not given it will simply list all fields.
@@ -156,8 +172,8 @@ For example:
     use fields qw(salmon);
 
     # @fields contains 'that' and 'meme' since they are Public and
-    # Inherited.  It doesn't contain 'salmon' since while it is Public
-    # it is not Inherited.
+    # Inherited.  It doesn't contain 'salmon' since while it is
+    # Public it is not Inherited.
     @fields = show_fields('Bar', qw(Private Inherited));
 
 =cut
@@ -186,7 +202,8 @@ sub show_fields {
 
 	# Return all fields with the requested bitmask.
 	my $fattr 	= get_attr($class);
-	return grep { $fattr->[$fields->{$_}-1] & $want_attr } keys %$fields;
+	return grep { ($fattr->[$fields->{$_}-1] & $want_attr) == $want_attr} 
+	            keys %$fields;
 }
 
 =pod
@@ -212,6 +229,7 @@ sub field_attrib_mask {
 	my($class) = ref $proto || $proto;
 	my $fields 	= get_fields($class);
 	my $fattr 	= get_attr($class);
+	return unless defined $fields->{$field};
 	return $fattr->[$fields->{$field} - 1];
 }
 
@@ -247,7 +265,7 @@ sub field_attribs {
 	my($class) = ref $proto || $proto;
 
 	my @attribs = ();
-	my $attr_mask = field_attribs_mask($class, $field);
+	my $attr_mask = field_attrib_mask($class, $field);
 	
 	while( my($attr_name, $attr_val) = each %NAMED_ATTRIBS ) {
 		push @attribs, $attr_name if $attr_mask & $attr_val;
@@ -288,6 +306,7 @@ future.
 # Backwards compatiblity.
 *_dump = \&dump_all_attribs;
 
+#'#
 sub dump_all_attribs {
 	my @classes = @_;
 
@@ -298,7 +317,8 @@ sub dump_all_attribs {
 	# Alas, I can't check for Class->dump_all_attribs(@classes).
 	if ( @classes > 1 and ref $classes[0] ) {
 		require Carp;
-		Carp::croak('$obj->dump_all_attribs(@classes) is too ambiguous.  Use only as $obj->dump_all_attribs()');
+		Carp::croak('$obj->dump_all_attribs(@classes) is too ambiguous.'.
+					'Use only as $obj->dump_all_attribs()');
 	}
 
 	# Allow $obj->dump_all_attribs; to work.
@@ -306,7 +326,7 @@ sub dump_all_attribs {
 
 	# Have to do a little encapsulation breaking here.  Oh well, at least
 	# its keeping it in the family.
-	my @classes = sort keys %fields::attr unless @classes;
+	@classes = sort keys %fields::attr unless @classes;
 
  	for my $class (@classes) {
 		print "\n$class";
@@ -318,7 +338,7 @@ sub dump_all_attribs {
 		for my $f (sort {$fields->{$a} <=> $fields->{$b}} keys %$fields) {
 			my $no = $fields->{$f};
 			print "   $no: $f";
-			print "\t(", join(", ", field_attribs($class, $f), ")");
+			print "\t(", join(", ", field_attribs($class, $f)), ")";
 			print "\n";
 		}
 	}
@@ -328,6 +348,66 @@ sub dump_all_attribs {
 
 =pod
 
+=head1 EXAMPLES
+
+Neat tricks that can be done with this module:
+
+=over 4
+
+=item An integrity check for your object.
+
+Upon destruction, check to make sure no strange keys were added to
+your object hash.  This is a nice check against typos and other
+modules sticking their dirty little fingers where they shouldn't be
+if you're not using a pseudo-hash.
+
+    sub DESTROY {
+        my($self) = @_;
+        my($class) = ref $self;
+
+        my %fields = map { ($_,1) } $self->show_fields;
+        foreach my $key ( keys %$self ) {
+            warn "Strange key '$key' found in object '$self' ".
+                  "of class '$class'" unless
+                exists $fields{$key};
+        }
+    }
+
+=item Autoloaded accessors for public data members.
+
+Proper OO dogma tells you to do all public data access through
+accessors (methods who's sole purpose is to get and set data in your
+object).  This can be a royal pain in the ass to write and can also
+get rapidly unmaintainable since you wind up with a series of nearly
+identical methods.
+
+*Perfect* for an autoloader!
+
+    sub AUTOLOAD {
+        my $self = $_[0];
+        my $class = ref $self;
+
+        my($field) = $AUTOLOAD =~ /::([^:]+)$/;
+
+        # If its a public field, set up a named closure as its
+        # data accessor.
+        if( $self->is_public($field) ) {
+            *{$class.'::$field'} = sub {
+                my($self) = shift;
+                if(@_) {
+                    $self->{$field} = shift;
+                }
+                return $self->{$field};
+            };
+            goto &{$class.'::$field'};
+        }
+        else {
+             die "$field is not a public data member of $class";
+        }
+    }
+
+=back
+
 =head1 AUTHOR
 
 Michael G Schwern <schwern@pobox.com> with much code liberated from the
@@ -336,7 +416,7 @@ original fields.pm.
 
 =head1 SEE ALSO
 
-L<fields.pm>
+L<fields.pm>, L<public.pm>, L<private.pm>, L<protected.pm>
 
 =cut
 
