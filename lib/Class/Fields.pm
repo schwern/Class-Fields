@@ -461,6 +461,9 @@ Thanks to Tels for his big feature request/bug report.
 
 L<fields>, L<public>, L<private>, L<protected>
 
+Modules with similar effects...
+L<Tie::SecureHash>, L<Class::Contract>
+
 =cut
 
 return q|I'll get you next time, Gadget!|;
