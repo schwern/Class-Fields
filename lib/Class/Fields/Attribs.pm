@@ -6,7 +6,7 @@ use vars qw( @EXPORT @ISA $VERSION );
 @EXPORT = qw(PUBLIC PRIVATE INHERITED PROTECTED);
 require Exporter;
 @ISA = qw(Exporter);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 # Inheritance constants.
 # Its too bad I can't use 0bXXX since its 5.6 only.
@@ -18,7 +18,7 @@ use constant PROTECTED  => 2**3;    # Not to be used by anyone but that class
                                     # and its subclasses, will be inherited.
 
 # For backwards compatibility.
-# contant.pm doesn't like leading underscores.  Damn.
+# constant.pm doesn't like leading underscores.  Damn.
 sub _PUBLIC     () { PUBLIC     }
 sub _PRIVATE    () { PRIVATE    }
 sub _INHERITED  () { INHERITED  }
