@@ -17,7 +17,7 @@ require Exporter;
 @EXPORT_OK = qw(%attr inherit add_fields);
 %EXPORT_TAGS = (
 				'Attribs' 	=> [qw(_PUBLIC _PRIVATE _INHERITED _PROTECTED)],
-				'Inherit'	=> [qw(inerhit add_fields)],
+				'Inherit'	=> [qw(inherit add_fields)],
 			   );
 				
 
