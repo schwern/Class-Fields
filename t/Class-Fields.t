@@ -1,3 +1,4 @@
+# $Id$ 
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -46,7 +47,7 @@ sub eqarray  {
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 21 }
+BEGIN { $Total_tests = 23 }
 
 package Foo;
 
@@ -66,6 +67,9 @@ use base qw( Class::Fields Foo);
 ::ok( Foo->is_private('_eep'),          'Method:  is_private()'             );
 ::ok( Foo->is_protected('_stuff'),      'Method:  is_protected()'           );
 ::ok( Bar->is_inherited('this'),        'Method:  is_inherited()'           );
+
+::ok( Foo->is_field('_eep'),            'Method:  is_field()'               );
+::ok( !Foo->is_field('fnord'),           'Method:  is_field(), false'       );
 
 ::ok( ::eqarray([ sort Foo->show_fields ], 
               [ sort qw(this that _eep _orp Pants _stuff) ]),
