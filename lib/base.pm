@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.94';
+$VERSION = '1.95';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
@@ -27,6 +27,10 @@ sub import {
     my $inheritor = caller(0);
 
     foreach my $base (@_) {
+        next if $inheritor->isa($base);
+
+        push @{"$inheritor\::ISA"}, $base;
+
         unless (exists ${"$base\::"}{VERSION}) {
             eval "require $base";
             # Only ignore "Can't locate" errors from our eval require.
@@ -72,8 +76,6 @@ sub import {
 	require Class::Fields::Inherit;
         Class::Fields::Inherit::inherit_fields($inheritor, $fields_base);
     }
-
-    push @{"$inheritor\::ISA"}, @_;
 }
 
 1;
@@ -120,6 +122,16 @@ C<-1, defined by base.pm>.
 
 This module was introduced with Perl 5.004_04.
 
+
+=head1 NOTE
+
+This is the base.pm which was installed as part of the Class::Fields
+package.  B<NOT> the base.pm which is distributed with Perl.  This
+version should safely emulate everything that 5.6.0's base.pm does.
+It passes all of 5.6.0's regression tests.
+
+It should also work under 5.005_03, although if you're going to be
+screwing around with pseudohashes you really should upgrade to 5.6.0.
 
 =head1 SEE ALSO
 
