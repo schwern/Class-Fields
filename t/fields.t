@@ -63,12 +63,12 @@ ok( eqarray( [sort keys %Foo::FIELDS],
 			 [sort qw(_no Pants who _up_yours what)] ) 
   );
 
-use Class::Fields::Inheritance qw(:Attribs %attr);
+use Class::Fields::Inspector;
 
-ok( !(grep { !(_PUBLIC  & $attr{Foo}[$Foo::FIELDS{$_} - 1]) }
-		 qw(Pants who what)) );
-ok( !(grep { !(_PRIVATE & $attr{Foo}[$Foo::FIELDS{$_} - 1]) } 
-		 qw(_no _up_yours)) );
+ok( eqarray( [sort &show_fields('Foo', 'Public')],
+			 [sort qw(Pants who what)]) );
+ok( eqarray( [sort &show_fields('Foo', 'Private')],
+			 [sort qw(_no _up_yours)]) );
 
 # We should get compile time failures field name typos
 eval q(my Foo $obj = Foo->new; $obj->{notthere} = "");

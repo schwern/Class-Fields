@@ -68,21 +68,21 @@ package main;
 			 )
 	);
 
-use Class::Fields::Inheritance qw(:Attribs %attr);
+use Class::Fields::Inspector;
 
 # Check public fields
-::ok( !(grep { !($attr{Foo}[$Foo::FIELDS{$_}-1] & _PUBLIC) } 
-		qw(Red Hate Airport)) 
+::ok( eqarray( [sort &show_fields('Foo', 'Public')],
+			   [sort qw(Red Hate Airport)] )
 	);
 
 # Check private fields
-::ok( !(grep { !($attr{Foo}[$Foo::FIELDS{$_}-1] & _PRIVATE) } 
-		qw(_What _No _Meep)) 
+::ok( eqarray( [sort &show_fields('Foo', 'Private')],
+			   [sort qw(_What _No _Meep)] ) 
 	);
 
 # Check protected fields
-::ok( !(grep { !($attr{Foo}[$Foo::FIELDS{$_}-1] & _PROTECTED) }
-		qw(Northwest _puke _42 23))
+::ok( eqarray( [sort &show_fields('Foo', 'Protected')],
+			   [sort qw(Northwest _puke _42 23)] )
 	);
 
 
