@@ -51,7 +51,8 @@ WriteMakefile(
     VERSION_FROM        => 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM           => { Carp               => 0,
                              constant           => 0,
-                             Carp::Assert       => 0
+                             Carp::Assert       => 0,
+                             base               => 2.0,
                            },
     INSTALLDIRS         => 'perl',
     'dist'              => { COMPRESS   => 'gzip -9',
