@@ -1,4 +1,9 @@
-Revision history for Perl extension Class::Fields.
+0.20  Wed Aug 27 22:00:29 PDT 2003
+    * base.pm and fields.pm have been moved to their own distribution
+    - 5.8.1 warns about deprecated pseudo-hash usage.  Silented this warning
+      in the tests.
+    - Gutted Class::Fields::Inherit.  Moved functionality to base.pm to
+      break its dependency on Class::Fields.
 
 0.16  Wed Jul  9 17:12:39 PDT 2003
     * Ensuring we pass the bleadperl@20100 tests.
