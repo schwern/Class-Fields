@@ -12,7 +12,9 @@ require Exporter;
 @EXPORT = qw(add_fields has_fields get_fields get_attr );
 
 
-use constant SUCCESS    => 1;               
+use constant TRUE       => (1==1);
+use constant FALSE      => !TRUE;
+use constant SUCCESS    => TRUE;
 use constant FAILURE    => !SUCCESS;
 
 use Class::Fields::Attribs;
@@ -138,7 +140,8 @@ sub has_fields {
     my($proto) = shift;
     my($class) = ref $proto || $proto;
     my $fglob;
-    return $fglob = ${"$class\::"}{"FIELDS"} and *$fglob{HASH};
+    return ($fglob = ${"$class\::"}{"FIELDS"} and *$fglob{HASH}) ? TRUE
+                                                                 : FALSE;
 }
 
 =pod
