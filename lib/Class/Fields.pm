@@ -10,7 +10,7 @@ require Exporter;
 @ISA = qw(Exporter);
 
 use constant SUCCESS	=> 1;				
-use constant FAILURE 	=> 0;
+use constant FAILURE 	=> !SUCCESS;
 
 =pod
 
@@ -55,7 +55,7 @@ Class::Fields::Inspector.
 				'Fields'	=> [qw( add_fields has_fields get_fields get_attr 
 								  )],
 			   );
-Exporter::export_ok_tags(qw( Attribs Inherit ));
+Exporter::export_ok_tags(qw( Attribs Fields ));
 
 # Inheritance constants.
 use constant PUBLIC 	=> 2**0;	# Open to the public, will be inherited.
@@ -66,10 +66,11 @@ use constant PROTECTED	=> 2**3;	# Not to be used by anyone but that class
                                     # and its subclasses, will be inherited.
 
 # For backwards compatibility.
-use constant _PUBLIC	=>	PUBLIC;
-use constant _PRIVATE	=>	PRIVATE;
-use constant _INHERITED	=>	INHERITED;
-use constant _PROTECTED	=>	PROTECTED;
+# contant.pm doesn't like leading underscores.  Damn.
+sub _PUBLIC 	() { PUBLIC 	}
+sub _PRIVATE	() { PRIVATE 	}
+sub _INHERITED	() { INHERITED	}
+sub _PROTECTED	() { PROTECTED	}
 
 # The %attr hash holds the attributes of the currently assigned fields
 # per class.  The hash is indexed by class names and the hash value is
@@ -142,7 +143,8 @@ present before.
 sub has_fields {
 	my($proto) = shift;
 	my($class) = ref $proto || $proto;
-	return ${"$class\::"}{"FIELDS"} and *$fglob{HASH};
+	my $fglob;
+	return $fglob = ${"$class\::"}{"FIELDS"} and *$fglob{HASH};
 }
 
 =pod
