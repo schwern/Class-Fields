@@ -34,7 +34,7 @@ WriteMakefile(
 	VERSION_FROM       	=> 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM          	=> { Carp 		=> 0,
 						     Exporter 	=> 0,
-							 constants	=> 0,
+							 constant	=> 0,
 						   },
 	'dist'      		=> { COMPRESS 	=> 'gzip -9',
                              SUFFIX   	=> '.gz',
