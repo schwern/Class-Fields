@@ -25,6 +25,8 @@ sub import {
 1;
 
 __END__
+=pod
+
 =head1 NAME
 
 fields - compile-time class fields
