@@ -4,27 +4,32 @@ use strict;
 
 use vars qw($VERSION);
 
-$VERSION = 0.02;
+$VERSION = 0.04;
 
-use Class::Fields qw(:Attribs :Fields);
+use Class::Fields::Fuxor;
+use Class::Fields::Attribs;
 
 sub import {
-	#Dump the class.
-	shift;
-	
-	my $pack = caller;
-	foreach my $field (@_) {
-		if( $field =~ /^_/ ) {
-			require Carp;
-		 	Carp::carp("Use of leading underscores to name public data ",
-		 			   "fields is considered unwise.") if $^W;
-		}
-	}
-	add_fields($pack, PUBLIC, @_);
+    #Dump the class.
+    shift;
+    
+    my $pack = caller;
+    foreach my $field (@_) {
+        if( $field =~ /^_/ ) {
+            require Carp;
+            Carp::carp("Use of leading underscores to name public data ",
+                       "fields is considered unwise.") if $^W;
+        }
+    }
+    add_fields($pack, PUBLIC, @_);
 }
 
 
-return 'Do not forget to **enjoy the path**';
+return <<TIP
+Displaying one's member publicly will often get one arrested for
+indecent exposure.
+TIP
+
 __END__
 =pod
 
@@ -42,11 +47,25 @@ __END__
 
 =head1 DESCRIPTION
 
+=over 4
+
+=item I<Public member.> 
+
+Externally visible data or functionality.  An attribute or method that
+is directly accessable from scopes outside the class.  In Perl, most
+members are, by their standard semantics, pbulic.  By convention,
+attributes of Perl classes are regarded as private, as are methods
+whose names begin with an underscore.
+
+From B<"Object Oriented Perl"> by Damian Conway
+
+=back
+
 public.pm adds a list of keys as public data members to the current
 class.  This is useful when using pseudo-hashes as objects, or for
 simply imposing a bit more structure on your Perl objects than is
 normally expected.  It allows you to use the methods provided in
-Class::Fields::Inspector.
+Class::Fields.
 
 Public data members are those pieces of data which are expected to be
 regularly accessed by methods, functions and programs outside the
@@ -89,6 +108,6 @@ Michae G Schwern <schwern@pobox.com>
 
 =head1 SEE ALSO
 
-L<private>, L<protected>, L<fields>, L<base>, L<Class::Fields::Inspector>
+L<private>, L<protected>, L<fields>, L<base>, L<Class::Fields>
 
 =cut
