@@ -16,8 +16,7 @@ sub has_fields {
 
 sub has_version {
     my($base) = shift;
-    my $fglob = ${"$base\::"}{VERSION};
-    return $fglob && $fglob{SCALAR};
+    return ${*{"$base\::VERSION"}{SCALAR}};
 }
 
 
@@ -112,6 +111,9 @@ Multiple Inheritence of fields is B<NOT> supported.  If two or more
 base classes each have inheritable fields the 'base' pragma will
 croak.  See L<fields>, L<public> and L<protected> for a description of
 this feature.
+
+Due to the limitations of the pseudo-hash implementation, you must use
+base B<before> you declare any of your own fields.
 
 When strict 'vars' is in scope I<base> also lets you assign to @ISA
 without having to declare @ISA with the 'vars' pragma first.
