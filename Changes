@@ -1,5 +1,10 @@
-Revision history for Perl extension Foo.
+Revision history for Perl extension Class::Fields.
 
-0.01  Wed May 12 12:43:43 1999
-	- original version; created by h2xs 1.19
+0.06  Wed Dec 15 19:04:36 EST 1999
+	- Mispelt 'constants' instead of 'constant' as a dependency.
+
+0.05  Wed Dec 15 02:49:11 EST 1999
+	* First seriously working version
+	* First version released to CPAN
+
 
