@@ -1,10 +1,19 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.9802';
+$VERSION = '1.9803';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
+
+# constant.pm is slow
+sub PUBLIC     () { 2**0  }
+sub PRIVATE    () { 2**1  }
+sub INHERITED  () { 2**2  }
+sub PROTECTED  () { 2**3  }
+
+
+my $Fattr = \%fields::attr;
 
 # Since loading Class::Fields::Fuxor unnecessarily is considered
 # inefficient, we define our own has_*() to work with.
@@ -23,7 +32,22 @@ sub has_version {
 sub has_attr {
     my($proto) = shift;
     my($class) = ref $proto || $proto;
-    return exists $fields::attr{$class};
+    return exists $Fattr->{$class};
+}
+
+sub get_attr {
+    return $Fattr->{$_[0]};
+}
+
+sub get_fields {
+    return \%{$_[0].'::FIELDS'};
+}
+
+sub show_fields {
+    my($base, $mask) = @_;
+    my $fields = \%{$base.'::FIELDS'};
+    return grep { ($Fattr->{$base}[$fields->{$_}] & $mask) == $mask} 
+                keys %$fields;
 }
 
 
@@ -70,12 +94,9 @@ sub import {
         # Its perfectly alright to inherit from multiple classes that have 
         # %FIELDS as long as only one of them has fields to give.
         if ( has_fields($base) || has_attr($base) ) {
-	    require Class::Fields;
-
 	    # Check to see if there are fields to be inherited.
-	    if ( Class::Fields::show_fields($base, 'Public') or
-		 Class::Fields::show_fields($base, 'Protected') ) {
-
+	    if ( show_fields($base, PUBLIC) or
+                 show_fields($base, PROTECTED) ) {
 		# No multiple fields inheritence *suck*
 		if ($fields_base) {
 		    require Carp;
@@ -92,6 +113,52 @@ sub import {
         Class::Fields::Inherit::inherit_fields($inheritor, $fields_base);
     }
 }
+
+
+sub inherit_fields {
+    my($derived, $base) = @_;
+
+    return SUCCESS unless $base;
+
+    my $battr = get_attr($base);
+    my $dattr = get_attr($derived);
+    my $dfields = get_fields($derived);
+    my $bfields = get_fields($base);
+
+    $dattr->[0] = @$battr;
+
+    if( keys %$dfields ) {
+        warn "$derived is inheriting from $base but already has its own ".
+             "fields!\n".
+             "This will cause problems with pseudo-hashes.\n".
+             "Be sure you use base BEFORE declaring fields\n";
+    }
+
+    # Iterate through the base's fields adding all the non-private
+    # ones to the derived class.  Hang on to the original attribute
+    # (Public, Private, etc...) and add Inherited.
+    # This is all too complicated to do efficiently with add_fields().
+    while (my($k,$v) = each %$bfields) {
+        my $fno;
+	if ($fno = $dfields->{$k} and $fno != $v) {
+	    require Carp;
+	    Carp::croak ("Inherited %FIELDS can't override existing %FIELDS");
+	}
+
+        if( $battr->[$v] & PRIVATE ) {
+            $dattr->[$v] = undef;
+        }
+        else {
+            $dattr->[$v] = INHERITED | $battr->[$v];
+
+            # Derived fields must be kept in the same position as the
+            # base in order to make "static" typing work with psuedo-hashes.
+            # Alas, this kills multiple field inheritance.
+            $dfields->{$k} = $v;
+        }
+    }
+}
+
 
 1;
 
