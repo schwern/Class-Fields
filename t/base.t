@@ -46,7 +46,7 @@ sub eqarray  {
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 16 }
+BEGIN { $Total_tests = 17 }
 
 use vars qw( $W );
 BEGIN {
@@ -166,3 +166,18 @@ package Test::Version;
 use base qw(No::Version);
 ::ok( $No::Version::VERSION =~ /set by base\.pm/,          '$VERSION bug' );
 
+
+package Test::SIGDIE;
+
+{ 
+    local $SIG{__DIE__} = sub { 
+        ::ok(0, 'sigdie not caught, this test should not run') 
+    };
+    eval {
+      base->import qw(Huh::Boo);
+    };
+
+    ::ok($@ =~ /^Base class package "Huh::Boo" is empty./, 
+         'Base class empty error message');
+
+}

@@ -99,7 +99,7 @@ use Class::Fields;
 ::ok( is_protected('Foo', '_stuff'),    'Function:  is_protected()'         );
 
 use Class::Fields::Attribs;
-::ok( (field_attrib_mask('Bar', 'Pants') == PROTECTED|INHERITED),
+::ok( (field_attrib_mask('Bar', 'Pants') == (PROTECTED|INHERITED)),
                                         'field_attrib_mask()'               );
 ::ok( ::eqarray([sort &field_attribs('Bar', 'Pants')],
                 [sort qw(Protected Inherited)]),

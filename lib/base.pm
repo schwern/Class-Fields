@@ -1,13 +1,13 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.97';
+$VERSION = '1.98';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
 
 # Since loading Class::Fields::Fuxor unnecessarily is considered
-# inefficient, we define our own has_fields() to work with.
+# inefficient, we define our own has_*() to work with.
 sub has_fields {
     my($base) = shift;
     my $fglob = ${"$base\::"}{FIELDS};
@@ -16,7 +16,14 @@ sub has_fields {
 
 sub has_version {
     my($base) = shift;
-    return ${*{"$base\::VERSION"}{SCALAR}};
+    my $vglob = ${$base.'::'}{VERSION};
+    return $vglob && *$vglob{SCALAR};
+}
+
+sub has_attr {
+    my($proto) = shift;
+    my($class) = ref $proto || $proto;
+    return exists $fields::attr{$class};
 }
 
 
@@ -33,9 +40,12 @@ sub import {
     foreach my $base (@_) {
         next if $inheritor->isa($base);
 
-        push @{"$inheritor\::ISA"}, $base;
-
-        unless (has_version($base)) {
+        if (has_version($base)) {
+	    ${$base.'::VERSION'} = '-1, set by base.pm' 
+	      unless defined ${$base.'::VERSION'};
+        }
+        else {
+            local $SIG{__DIE__} = 'IGNORE';
             eval "require $base";
             # Only ignore "Can't locate" errors from our eval require.
             # Other fatal errors (syntax etc) must be reported.
@@ -47,8 +57,9 @@ sub import {
                             "which defines that package first.)");
             }
             ${$base.'::VERSION'} = "-1, set by base.pm"
-              unless has_version($base);
+              unless defined ${$base.'::VERSION'};
         }
+        push @{"$inheritor\::ISA"}, $base;
 
         # A simple test like (defined %{"$base\::FIELDS"}) will
         # sometimes produce typo warnings because it would create
@@ -58,7 +69,7 @@ sub import {
         # defined, we also check to see if it has -inheritable- fields.
         # Its perfectly alright to inherit from multiple classes that have 
         # %FIELDS as long as only one of them has fields to give.
-        if ( has_fields($base) ) {
+        if ( has_fields($base) || has_attr($base) ) {
 	    require Class::Fields;
 
 	    # Check to see if there are fields to be inherited.

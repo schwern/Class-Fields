@@ -16,6 +16,7 @@ require Exporter;
              has_fields 
              get_fields 
              get_attr 
+             has_attr
             );
 
 
@@ -169,7 +170,6 @@ sub add_field_set {
     }
 }
 
-=pod
 
 =item B<has_fields>
 
@@ -190,7 +190,19 @@ sub has_fields {
                                                                  : FALSE;
 }
 
-=pod
+=item B<has_attr>
+
+  has_attr($class);
+
+A simple check to see if the given $class has attributes.
+
+=cut
+
+sub has_attr {
+    my($proto) = shift;
+    my($class) = ref $proto || $proto;
+    return exists $attr{$class};
+}
 
 =item B<get_attr>
 
