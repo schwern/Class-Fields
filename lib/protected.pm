@@ -1,3 +1,25 @@
+package protected;
+
+use strict;
+
+use vars qw($VERSION);
+
+$VERSION = 0.02;
+
+use Class::Fields qw(:Attribs :Fields);
+
+sub import {
+	#Dump the class.
+	shift;
+	
+	my $package = caller;
+	add_fields($package, PROTECTED, @_);
+}
+
+return 'I like traffic lights';
+__END__
+=pod
+
 =head1 NAME
 
 protected - "private" data fields which are inherited by child classes
@@ -5,28 +27,23 @@ protected - "private" data fields which are inherited by child classes
 
 =head1 SYNOPSIS
 
-	package Foo;
-	use fields qw(foo bar _private)
-	use protected qw(_pants _spoon);
-	
-	sub squonk {
-		my($self) = shift;
-		$self->{_pants} = 'Infinite Trousers';
-		$self->{_spoon} = 'What stirs me, stirs everything';
-		...
-	}
-	
-	package Bar;
-	# Inherits foo, bar, this and _that
-	use base qw(Foo);
-	...
-	
-	package Harfurfar;
-	my Bar $bar = Bar->new;
-	$bar->squonk;  # This works because Foo::squonk() uses _pants and
-				   # _spoon, which are inherited by Bar.
-
-	
+    package Foo;
+    use public      qw(foo bar );
+    use private     qw(_private);
+    use protected   qw(_pants spoon);
+    
+    sub squonk {
+        my($self) = shift;
+        $self->{_pants} = 'Infinite Trousers';
+        $self->{spoon}  = 'What stirs me, stirs everything';
+        ...
+    }
+    
+    package Bar;
+    # Inherits foo, bar, _pants and spoon
+    use base qw(Foo);
+    ...
+    
 
 =head1 DESCRIPTION
 
@@ -50,11 +67,11 @@ not just a plain hash.  In which case forget this whole module.)
 
 =head2 The Camel Behind The Curtain
 
-In reality, there is no difference between a "protected" variable and
-a "public" on in Perl.  The only real difference is that the protected
-module doesn't care what the field is called (ie. if it starts with an
-underscore or not) whereas fields uses the name to determine if the
-variable is public or private (ie. inherited or not).
+In reality, there is little difference between a "protected" variable
+and a "public" on in Perl.  The only real difference is that the
+protected module doesn't care what the field is called (ie. if it
+starts with an underscore or not) whereas fields uses the name to
+determine if the variable is public or private (ie. inherited or not).
 
 
 =head1 AUTHOR
@@ -68,23 +85,3 @@ L<public>, L<private>, L<fields>, L<Class::Fields>, L<base>
 
 
 =cut
-
-package protected;
-
-use strict;
-
-use vars qw($VERSION);
-
-$VERSION = 0.02;
-
-use Class::Fields qw(:Attribs :Fields);
-
-sub import {
-	#Dump the class.
-	shift;
-	
-	my $package = caller;
-	add_fields($package, PROTECTED, @_);
-}
-
-return 'I like traffic lights';
