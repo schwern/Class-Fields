@@ -1,66 +1,20 @@
 package Class::Fields::Inherit;
 
 use strict;
-no strict 'refs';
 use vars qw(@ISA @EXPORT $VERSION);
 
-use Class::Fields::Fuxor;
-use Class::Fields::Attribs;
-
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw( inherit_fields );
 
-use constant SUCCESS => 1;
-use constant FAILURE => !SUCCESS;
+# This may seem backwards.  The subroutine was moved to base.pm to break
+# base.pm's dependency on Class::Fields.
+require base;
+*inherit_fields = \&base::inherit_fields;
 
-#'#
-sub inherit_fields {
-    my($derived, $base) = @_;
-
-    return SUCCESS unless $base;
-
-    my $battr = get_attr($base);
-    my $dattr = get_attr($derived);
-    my $dfields = get_fields($derived);
-    my $bfields = get_fields($base);
-
-    $dattr->[0] = @$battr;
-
-    if( keys %$dfields ) {
-        warn "$derived is inheriting from $base but already has its own ".
-             "fields!\n".
-             "This will cause problems with pseudo-hashes.\n".
-             "Be sure you use base BEFORE declaring fields\n";
-    }
-
-    # Iterate through the base's fields adding all the non-private
-    # ones to the derived class.  Hang on to the original attribute
-    # (Public, Private, etc...) and add Inherited.
-    # This is all too complicated to do efficiently with add_fields().
-    while (my($k,$v) = each %$bfields) {
-        my $fno;
-	if ($fno = $dfields->{$k} and $fno != $v) {
-	    require Carp;
-	    Carp::croak ("Inherited %FIELDS can't override existing %FIELDS");
-	}
-
-        if( $battr->[$v] & PRIVATE ) {
-            $dattr->[$v] = undef;
-        }
-        else {
-            $dattr->[$v] = INHERITED | $battr->[$v];
-
-            # Derived fields must be kept in the same position as the
-            # base in order to make "static" typing work with psuedo-hashes.
-            # Alas, this kills multiple field inheritance.
-            $dfields->{$k} = $v;
-        }
-    }
-}
 
 return 'IRS Estate Tax Return Form 706';
 __END__
