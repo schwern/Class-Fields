@@ -1,5 +1,30 @@
 package fields;
 
+use strict;
+use vars qw($VERSION);
+
+use Class::Fields qw(:Attribs :Fields);
+
+use constant SUCCESS => 1;
+
+$VERSION = "0.11";
+
+sub import {
+    # Dump the class.
+    shift;
+    
+    my $package = caller(0);
+    
+	return SUCCESS unless @_;
+
+    add_fields($package, PRIVATE, grep {/^_/} @_);
+    add_fields($package, PUBLIC,  grep {!/^_/} @_);
+}
+
+
+1;
+
+__END__
 =head1 NAME
 
 fields - compile-time class fields
@@ -57,41 +82,14 @@ constructor like this does the job:
   {
       my $class = shift;
       no strict 'refs';
-      my $self = bless [\%{"$class\::FIELDS"}], $class;
-      $self;
+      my $self = bless [\%{$class.'::FIELDS'}], $class;
+      return $self;
   }
 
 
 =head1 SEE ALSO
 
-L<base>,
-L<public>, L<private>, L<protected>,
+L<base>, L<public>, L<private>, L<protected>,
 L<perlref/Pseudo-hashes: Using an array as a hash>
 
 =cut
-
-#'#
-
-use strict;
-use vars qw($VERSION);
-
-use Class::Fields::Inheritance qw(:Attribs :Inherit);
-
-use constant SUCCESS => 1;
-
-$VERSION = "0.10";
-
-sub import {
-    # Dump the class.
-    shift;
-    
-    my $package = caller(0);
-    
-	return SUCCESS unless @_;
-
-    add_fields($package, _PRIVATE, grep {/^_/} @_);
-    add_fields($package, _PUBLIC,  grep {!/^_/} @_);
-}
-
-
-1;
