@@ -44,6 +44,8 @@ __END__
 
   use public qw( Name Rank Serial_Number );
 
+  # see the protected man page for an example of use
+
 
 =head1 DESCRIPTION
 
@@ -53,7 +55,7 @@ __END__
 
 Externally visible data or functionality.  An attribute or method that
 is directly accessable from scopes outside the class.  In Perl, most
-members are, by their standard semantics, pbulic.  By convention,
+members are, by their standard semantics, public.  By convention,
 attributes of Perl classes are regarded as private, as are methods
 whose names begin with an underscore.
 
@@ -92,15 +94,16 @@ Additionally, public.pm is a bit clearer in its intent and is not
 necessarily implying use of pseudo-hashes.
 
 
+=head1 EXAMPLE
+
+See L<protected/SYNOPSIS> for an example of use.
+
 =head1 MUSINGS
 
 I fully expect public.pm to eventually mutate into a real pragma
 someday when a better formalized OO data system for Perl supplants the
 current fledgling pseudo-hashes.
 
-=head1 HISTORY
-
-This module was added as of version 5.6
 
 =head1 AUTHOR
 
