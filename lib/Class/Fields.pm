@@ -1,3 +1,5 @@
+# $Id$ 
+
 package Class::Fields;
 
 use strict;
@@ -12,9 +14,14 @@ require Exporter;
               field_attribs
               dump_all_attribs
               show_fields
+              is_public
+              is_private
+              is_protected
+              is_inherited
+              is_field
             );
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
@@ -41,6 +48,7 @@ Class::Fields - Inspect the fields of a class.
 
     use Class::Fields;
 
+    is_field    ($class, $field);
     is_public   ($class, $field);
     is_private  ($class, $field);
     is_protected($class, $field);
@@ -85,6 +93,24 @@ be used that way by having your module inherit from it.  For example:
         $obj->is_public('this');
 
 =over 4
+
+=item B<is_field>
+
+  is_field($class, $field);
+  $class->is_field($field);
+
+Simply asks if a given $class has the given $field defined in it.
+
+=cut
+
+sub is_field {
+    my($proto, $field) = @_;
+
+    my($class) = ref $proto || $proto;
+    return defined field_attrib_mask($class, $field) ? 1 : 0;
+}
+
+=pod
 
 =item B<is_public>
 
