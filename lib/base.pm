@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = "1.93";
+$VERSION = '1.94';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
@@ -54,8 +54,8 @@ sub import {
 	    require Class::Fields;
 
 	    # Check to see if there are fields to be inherited.
-	    if ( show_fields($base, 'Public') or
-		 show_fields($base, 'Protected') ) {
+	    if ( Class::Fields::show_fields($base, 'Public') or
+		 Class::Fields::show_fields($base, 'Protected') ) {
 
 		# No multiple fields inheritence *suck*
 		if ($fields_base) {
@@ -70,7 +70,7 @@ sub import {
 
     if( defined $fields_base ) {
 	require Class::Fields::Inherit;
-        inherit_fields($inheritor, $fields_base);
+        Class::Fields::Inherit::inherit_fields($inheritor, $fields_base);
     }
 
     push @{"$inheritor\::ISA"}, @_;
