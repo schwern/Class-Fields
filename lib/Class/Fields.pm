@@ -174,6 +174,9 @@ indicated by the $class's %FIELDS has.  For example:
 sub get_attr {
 	my($proto) = shift;
 	my($class) = ref $proto || $proto;
+	unless ( defined $attr{$class} ) {
+		$attr{$class} = [];
+	}
 	return $attr{$class};
 }
 
@@ -183,20 +186,21 @@ sub get_attr {
 
   $fields = get_fields($class);
 
-Gets a reference to the %FIELDS hash for the given $class.
+Gets a reference to the %FIELDS hash for the given $class.  It will
+autogenerate a %FIELDS hash if one doesn't already exist.  If you
+don't want this behavior, be sure to check beforehand with
+has_fields().
 
 =cut
 
 sub get_fields {
 	my($proto) = shift;
 	my($class) = ref $proto || $proto;
-	
-	if( has_fields($class) ) {
-		return \%{$class.'::FIELDS'};
-	}
-	else {
-		return FAILURE;
-	}
+
+	# Shut up a possible typo warning.
+	() = \%{$class.'::FIELDS'};
+
+	return \%{$class.'::FIELDS'};
 }
 
 =pod
