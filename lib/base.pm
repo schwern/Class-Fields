@@ -1,14 +1,20 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = "1.92";
-
-use Class::Fields::Inherit;
-use Class::Fields::Fuxor;
-use Class::Fields;
+$VERSION = "1.93";
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
+
+# Since loading Class::Fields::Fuxor unnecessarily is considered
+# inefficient, we define our own has_fields() to work with.
+sub has_fields {
+    my($proto) = shift;
+    my($class) = ref $proto || $proto;
+    my $fglob;
+    return $fglob = ${"$class\::"}{"FIELDS"} and *$fglob{HASH};
+}
+
 
 sub import {
     my $class = shift;
@@ -44,21 +50,26 @@ sub import {
         # defined, we also check to see if it has -inheritable- fields.
         # Its perfectly alright to inherit from multiple classes that have 
         # %FIELDS as long as only one of them has fields to give.
-        if ( has_fields($base) and 
-             ( show_fields($base, 'Public') or 
-               show_fields($base, 'Protected') )
-           ) {
-            # No multiple fields inheritence *suck*
-            if ($fields_base) {
-                require Carp;
-                Carp::croak("Can't multiply inherit %FIELDS");
-            } else {
-                $fields_base = $base;
-            }
+        if ( has_fields($base) ) {
+	    require Class::Fields;
+
+	    # Check to see if there are fields to be inherited.
+	    if ( show_fields($base, 'Public') or
+		 show_fields($base, 'Protected') ) {
+
+		# No multiple fields inheritence *suck*
+		if ($fields_base) {
+		    require Carp;
+		    Carp::croak("Can't multiply inherit %FIELDS");
+		} else {
+		    $fields_base = $base;
+		}
+	    }
         }
     }
 
     if( defined $fields_base ) {
+	require Class::Fields::Inherit;
         inherit_fields($inheritor, $fields_base);
     }
 
