@@ -24,3 +24,4 @@ t/fields.t
 t/Fuxor.t
 t/Inherit.t
 t/members.t
+META.yml                                Module meta-data (added by MakeMaker)
