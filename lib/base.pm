@@ -1,52 +1,10 @@
-=head1 NAME
-
-base - Establish IS-A relationship with base class at compile time
-
-=head1 SYNOPSIS
-
-    package Baz;
-    use base qw(Foo Bar);
-
-=head1 DESCRIPTION
-
-Roughly similar in effect to
-
-    BEGIN {
-		require Foo;
-		require Bar;
-		push @ISA, qw(Foo Bar);
-    }
-
-Will also initialize the %FIELDS hash if one or more of the base
-classes has it using all public and protected data members of the base
-classes.  Multiple Inheritance is supported.  If two or more base
-classes each wish to endow the same fields, the 'base' pragma will
-croak.  See L<fields>, L<public> and L<protected> for a description of
-this feature.
-
-When strict 'vars' is in scope I<base> also lets you assign to @ISA
-without having to declare @ISA with the 'vars' pragma first.
-
-If any of the base classes are not loaded yet, I<base> silently
-C<require>s them.  Whether to C<require> a base class package is
-determined by the absence of a global $VERSION in the base package.
-If $VERSION is not detected even after loading it, <base> will
-define $VERSION in the base package, setting it to the string
-C<-1, defined by base.pm>.
-
-=head1 HISTORY
-
-This module was introduced with Perl 5.004_04.
-
-=head1 SEE ALSO
-
-L<fields>, L<public>, L<protected>
-
-=cut
-
 package base;
+
 use vars qw($VERSION);
-$VERSION = "1.90";
+$VERSION = "1.91";
+
+use Class::Fields::Inherit;
+use Class::Fields qw(:Fields);
 
 use constant SUCCESS => 1;
 
@@ -56,7 +14,7 @@ sub import {
 	return SUCCESS unless @_;
 
 	# List of base classes from which we will inherit %FIELDS.
-	my @fields_bases = ();
+	my $fields_base;
 
     my $inheritor = caller(0);
 
@@ -80,17 +38,70 @@ sub import {
         # sometimes produce typo warnings because it would create
         # the hash if it was not present before.
         my $fglob;
-        if ($fglob = ${"$base\::"}{"FIELDS"} and *$fglob{HASH}) {
-            push @fields_bases, $base;
+        if ( has_fields($base) ) {
+            # No multiple fields inheritence *suck*
+			if ($fields_base) {
+				require Carp;
+				Carp::croak("Can't multiply inherit %FIELDS");
+			} else {
+				$fields_base = $base;
+			}
 		}
     }
 
-    if( @fields_bases ) {
-		require Class::Fields::Inheritance;
-		Class::Fields::Inheritance::inherit($inheritor, @fields_bases);
+    if( defined $fields_base ) {
+		inherit_fields($inheritor, $fields_base);
 	}
 
     push @{"$inheritor\::ISA"}, @_;
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+base - Establish IS-A relationship with base class at compile time
+
+=head1 SYNOPSIS
+
+    package Baz;
+    use base qw(Foo Bar);
+
+=head1 DESCRIPTION
+
+Roughly similar in effect to
+
+    BEGIN {
+		require Foo;
+		require Bar;
+		push @ISA, qw(Foo Bar);
+    }
+
+Will also initialize the %FIELDS hash if one or more of the base
+classes has it using all public and protected data members of the base
+classes.  Multiple Inheritence is supported.  If two or more base
+classes each wish to endow the same fields, the 'base' pragma will
+croak.  See L<fields>, L<public> and L<protected> for a description of
+this feature.
+
+When strict 'vars' is in scope I<base> also lets you assign to @ISA
+without having to declare @ISA with the 'vars' pragma first.
+
+If any of the base classes are not loaded yet, I<base> silently
+C<require>s them.  Whether to C<require> a base class package is
+determined by the absence of a global $VERSION in the base package.
+If $VERSION is not detected even after loading it, <base> will
+define $VERSION in the base package, setting it to the string
+C<-1, defined by base.pm>.
+
+=head1 HISTORY
+
+This module was introduced with Perl 5.004_04.
+
+=head1 SEE ALSO
+
+L<fields>, L<public>, L<protected>
+
+=cut
