@@ -6,9 +6,12 @@ t/base.t
 t/members.t
 t/Class-Fields.t
 t/Inherit.t
+t/Fuxor.t
+t/Attribs.t
 lib/Class/Fields/Inherit.pm
 lib/Class/Fields.pm
-lib/Class/Fields/Inspector.pm
+lib/Class/Fields/Fuxor.pm
+lib/Class/Fields/Attribs.pm
 lib/fields.pm
 lib/protected.pm
 lib/public.pm
