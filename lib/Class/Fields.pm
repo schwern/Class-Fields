@@ -4,6 +4,7 @@ use strict;
 no strict 'refs';
 
 use vars qw(@ISA @EXPORT $VERSION);
+require Exporter;
 @ISA = qw(Exporter);
 
 # is_* will push themselves onto @EXPORT
@@ -13,7 +14,7 @@ use vars qw(@ISA @EXPORT $VERSION);
               show_fields
             );
 
-$VERSION = 0.07;
+$VERSION = '0.08';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
