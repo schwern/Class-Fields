@@ -7,7 +7,7 @@ use vars qw(@ISA @EXPORT $VERSION);
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
 
-$VERSION = 0.02;
+$VERSION = '0.03';
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -18,38 +18,39 @@ use constant SUCCESS => 1;
 use constant FAILURE => !SUCCESS;
 
 #'#
-sub inherit_fields
-{
+sub inherit_fields {
     my($derived, $base) = @_;
 
     return SUCCESS unless $base;
 
-    my $base_fields = get_fields($base);
+    my $battr = get_attr($base);
+    my $dattr = get_attr($derived);
+    my $dfields = get_fields($derived);
+    my $bfields = get_fields($base);
 
-    if (has_fields($derived)) {
-        require Carp;
-        Carp::croak("Inherited %FIELDS from '$base' can't override existing %FIELDS in '$derived'");
-    } else {
-        my $derived_fields = get_fields($derived);
+    $dattr->[0] = @$battr;
 
-        my $battr = get_attr($base);
-        my $dattr = get_attr($derived);
+    # Iterate through the base's fields adding all the non-private
+    # ones to the derived class.  Hang on to the original attribute
+    # (Public, Private, etc...) and add Inherited.
+    # This is all too complicated to do efficiently with add_fields().
+    while (my($k,$v) = each %$bfields) {
+        my $fno;
+	if ($fno = $dfields->{$k} and $fno != $v) {
+	    require Carp;
+	    Carp::croak ("Inherited %FIELDS can't override existing %FIELDS");
+	}
 
-        # XXX I'm not entirely sure why this is here.
-        $dattr->[@$battr-1] = undef;
-
-        # Iterate through the base's fields adding all the non-private
-        # ones to the derived class.  Hang on to the original attribute
-        # (Public, Private, etc...) and add Inherited.
-        # This is all too complicated to do efficiently with add_fields().
-        while (my($k,$v) = each %$base_fields) {
-            next if $battr->[$v-1] & PRIVATE;
-            $dattr->[$v-1] = INHERITED | $battr->[$v-1];
+        if( $battr->[$v] & PRIVATE ) {
+            $dattr->[$v] = undef;
+        }
+        else {
+            $dattr->[$v] = INHERITED | $battr->[$v];
 
             # Derived fields must be kept in the same position as the
             # base in order to make "static" typing work with psuedo-hashes.
             # Alas, this kills multiple field inheritance.
-            $derived_fields->{$k} = $v;
+            $dfields->{$k} = $v;
         }
     }
 }
