@@ -46,7 +46,7 @@ sub eqarray  {
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 7 }
+BEGIN { $Total_tests = 14 }
 
 package Foo;
 
