@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.98';
+$VERSION = '1.9801';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
@@ -126,15 +126,16 @@ this feature.
 Due to the limitations of the pseudo-hash implementation, you must use
 base B<before> you declare any of your own fields.
 
-When strict 'vars' is in scope I<base> also lets you assign to @ISA
+When strict 'vars' is in scope, I<base> also lets you assign to @ISA
 without having to declare @ISA with the 'vars' pragma first.
 
 If any of the base classes are not loaded yet, I<base> silently
-C<require>s them.  Whether to C<require> a base class package is
-determined by the absence of a global $VERSION in the base package.
-If $VERSION is not detected even after loading it, <base> will
-define $VERSION in the base package, setting it to the string
-C<-1, defined by base.pm>.
+C<require>s them (but it won't call the C<import> method).  Whether to
+C<require> a base class package is determined by the absence of a global
+$VERSION in the base package.  If $VERSION is not detected even after
+loading it, I<base> will define $VERSION in the base package, setting it to
+the string C<-1, set by base.pm>.
+
 
 =head1 HISTORY
 
