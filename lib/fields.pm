@@ -70,12 +70,16 @@ L<perlref/Pseudo-hashes: Using an array as a hash>
 
 =cut
 
+#'#
+
 use strict;
 use vars qw($VERSION);
 
 use Class::Fields::Inheritance qw(:Attribs :Inherit);
 
-$VERSION = "0.02";
+use constant SUCCESS => 1;
+
+$VERSION = "0.10";
 
 sub import {
     # Dump the class.
@@ -83,6 +87,8 @@ sub import {
     
     my $package = caller(0);
     
+	return SUCCESS unless @_;
+
     add_fields($package, _PRIVATE, grep {/^_/} @_);
     add_fields($package, _PUBLIC,  grep {!/^_/} @_);
 }
