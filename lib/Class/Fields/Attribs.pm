@@ -4,8 +4,9 @@ use strict;
 
 use vars qw( @EXPORT @ISA $VERSION );
 @EXPORT = qw(PUBLIC PRIVATE INHERITED PROTECTED);
+require Exporter;
 @ISA = qw(Exporter);
-$VERSION = 0.01;
+$VERSION = '0.02';
 
 # Inheritance constants.
 # Its too bad I can't use 0bXXX since its 5.6 only.
