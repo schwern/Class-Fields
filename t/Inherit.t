@@ -24,25 +24,25 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-	my($test, $name) = @_;
-	print "not " unless $test;
-	print "ok $test_num";
-	print " - $name" if defined $name;
-	print "\n";
-	$test_num++;
+    my($test, $name) = @_;
+    print "not " unless $test;
+    print "ok $test_num";
+    print " - $name" if defined $name;
+    print "\n";
+    $test_num++;
 }
 
 sub eqarray  {
-	my($a1, $a2) = @_;
-	return 0 unless @$a1 == @$a2;
-	my $ok = 1;
-	for (0..$#{$a1}) { 
-	    unless($a1->[$_] eq $a2->[$_]) {
-		$ok = 0;
-		last;
-	    }
-	}
-	return $ok;
+    my($a1, $a2) = @_;
+    return 0 unless @$a1 == @$a2;
+    my $ok = 1;
+    for (0..$#{$a1}) { 
+        unless($a1->[$_] eq $a2->[$_]) {
+        $ok = 0;
+        last;
+        }
+    }
+    return $ok;
 }
 
 # Change this to your # of ok() calls + 1
@@ -50,40 +50,40 @@ BEGIN { $Total_tests = 5; }
 
 package Yar;
 
-use public 	qw( Pub Pants );
+use public  qw( Pub Pants );
 use private qw( _Priv _Pantaloons );
-use protected	qw( _Prot Armoured );
+use protected   qw( _Prot Armoured );
 
 BEGIN {
-	use Class::Fields::Inherit;
-	inherit_fields('Pants', 'Yar');
+    use Class::Fields::Inherit;
+    inherit_fields('Pants', 'Yar');
 }
 
 ::ok( ::eqarray([sort keys %Pants::FIELDS], 
-				[sort qw(Pub Pants _Prot Armoured)] 
-			   ),
-	  'inherit_fields()'
-	);
+                [sort qw(Pub Pants _Prot Armoured)] 
+               ),
+      'inherit_fields()'
+    );
 
 # Can't use compile time (my Pants) because then eval won't catch
 # the error (it won't be run time)
 my $trousers = bless [\%Pants::FIELDS], 'Pants';
 
 eval {
-	$trousers->{Pub} 		= "Whatver";
-	$trousers->{Pants} 		= "This too";
-	$trousers->{_Prot} 		= "Hey oh";
-	$trousers->{Armoured}	= 4;
+    $trousers->{Pub}        = "Whatver";
+    $trousers->{Pants}      = "This too";
+    $trousers->{_Prot}      = "Hey oh";
+    $trousers->{Armoured}   = 4;
 };
 ::ok($@ eq '' or $@ !~ /no such field/i);
 
 eval {
-	$trousers->{_Priv} = "Yarrow";
+    $trousers->{_Priv} = "Yarrow";
 };
 ::ok($@ =~ /no such( \w+)? field/i);
 
 eval {
-	$trousers->{_Pantaloons} = "Yarrow";
+    $trousers->{_Pantaloons} = "Yarrow";
 };
 ::ok($@ =~ /no such( \w+)? field/i);
 

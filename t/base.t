@@ -24,25 +24,25 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-	my($test, $name) = @_;
-	print "not " unless $test;
-	print "ok $test_num";
-	print " - $name" if defined $name;
-	print "\n";
-	$test_num++;
+    my($test, $name) = @_;
+    print "not " unless $test;
+    print "ok $test_num";
+    print " - $name" if defined $name;
+    print "\n";
+    $test_num++;
 }
 
 sub eqarray  {
-	my($a1, $a2) = @_;
-	return 0 unless @$a1 == @$a2;
-	my $ok = 1;
-	for (0..$#{$a1}) { 
-	    unless($a1->[$_] eq $a2->[$_]) {
-		$ok = 0;
-		last;
-	    }
-	}
-	return $ok;
+    my($a1, $a2) = @_;
+    return 0 unless @$a1 == @$a2;
+    my $ok = 1;
+    for (0..$#{$a1}) { 
+        unless($a1->[$_] eq $a2->[$_]) {
+        $ok = 0;
+        last;
+        }
+    }
+    return $ok;
 }
 
 # Change this to your # of ok() calls + 1
@@ -50,15 +50,15 @@ BEGIN { $Total_tests = 15 }
 
 use vars qw( $W );
 BEGIN {
-	$W = 0;
-	$SIG{__WARN__} = sub {
-		if ($_[0] =~ /^Hides field '.*?' in base class/) {
-			$W++;
-		}
-		else {
-			warn $_[0];
-		}
-	};
+    $W = 0;
+    $SIG{__WARN__} = sub {
+        if ($_[0] =~ /^Hides field '.*?' in base class/) {
+            $W++;
+        }
+        else {
+            warn $_[0];
+        }
+    };
 }
 
 package B1;
@@ -99,7 +99,7 @@ use base qw(M B2);
 # Test that multiple inheritance fails.
 package D6;
 eval {
-	'base'->import(qw(B2 M B3));
+    'base'->import(qw(B2 M B3));
 };
 ::ok($@ =~ /can't multiply inherit %FIELDS/i, 'No multiple field inheritance');
 
@@ -113,24 +113,24 @@ use fields qw(foo bar baz);
 package main;
 
 my %EXPECT = (
-			  B1 => [qw(b1 b2 b3)],
-			  B2 => [qw(_b1 b1 _b2 b2)],
-			  B3 => [qw(b4 _b5 b6 _b7)],
-			  D1 => [qw(d1 d2 d3 b1 b2 b3)],
-			  D2 => [qw(b1 b2 b3 _d1 _d2 d1 d2)],
-			  D3 => [qw(b1 b2 d1 _b1 _d1)],
-			  D4 => [qw(b1 b2 d1 _d3 d3)],
-			  M  => [qw()],
-			  D5 => [qw(b1 b2)],
-			  'Foo::Bar' 		=> [qw(b1 b2 b3)],
-			  'Foo::Bar::Baz' 	=> [qw(b1 b2 b3 foo bar baz)],
-			 );
+              B1 => [qw(b1 b2 b3)],
+              B2 => [qw(_b1 b1 _b2 b2)],
+              B3 => [qw(b4 _b5 b6 _b7)],
+              D1 => [qw(d1 d2 d3 b1 b2 b3)],
+              D2 => [qw(b1 b2 b3 _d1 _d2 d1 d2)],
+              D3 => [qw(b1 b2 d1 _b1 _d1)],
+              D4 => [qw(b1 b2 d1 _d3 d3)],
+              M  => [qw()],
+              D5 => [qw(b1 b2)],
+              'Foo::Bar'        => [qw(b1 b2 b3)],
+              'Foo::Bar::Baz'   => [qw(b1 b2 b3 foo bar baz)],
+             );
 
 while(my($class, $efields) = each %EXPECT) {
-	no strict 'refs';
-	my @fields = keys %{$class.'::FIELDS'};
-	
-	::ok( eqarray([sort @$efields], [sort @fields]), 
+    no strict 'refs';
+    my @fields = keys %{$class.'::FIELDS'};
+    
+    ::ok( eqarray([sort @$efields], [sort @fields]), 
                                                   "%FIELDS check:  $class" );
 }
 
@@ -146,11 +146,11 @@ package E2;
 use fields qw(_yo ahhh this);
 
 eval {
-	package Broken;
+    package Broken;
 
-	# The error must occur at run time for the eval to catch it.
-	require base;
-	'base'->import(qw(E1 E2));
+    # The error must occur at run time for the eval to catch it.
+    require base;
+    'base'->import(qw(E1 E2));
 };
 ::ok( $@ and $@ =~ /Can't multiply inherit %FIELDS/i, 'Again, no multi inherit' );
 
