@@ -1,17 +1,28 @@
 Revision history for Perl extension Class::Fields.
+
+0.11  Wed Dec 13 21:29:24 EST 2000
+    - Alot of little doc fixes (thanks Tels)
+    - Added Carp::Assert to the dependencies (accidentally left out)
+
+0.10  Wed Jul 19 06:45:57 GMT 2000
+    - Passes 5.6.0's regression tests for base.pm and fields.pm
+      Added those tests to the library's own suite.
+
 0.09  Fri Apr 14 23:00:52 EDT 2000
     - Added is_field() to Class::Fields
     - Now exporting is_public, etc...
+
 0.08  Sat Feb 26 04:16:24 EST 2000
     - Forgot to require Exporter in a few places.  This got by somehow in
       5.005_03 but not 5.6.
     - base.pm now only loads other Class::Fields modules if field
       inheritance is happening.
     - altered tests slightly to fit new 5.6 diagnostics
-0.07  Sat Jan  9 07:57:43 GMT 2000
+
+0.07  Sat Jan  9 07:57:43 GMT 2000      *UNRELEASED*
     * show_fields() was autoviving %FIELDS.
     - show_fields() was not using get_fields().
-    - Never released.
+
 0.06  Wed Dec 15 19:04:36 EST 1999
     - Mispelt 'constants' instead of 'constant' as a dependency.
 
