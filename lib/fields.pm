@@ -11,7 +11,7 @@ use Carp::Assert;
 
 use constant SUCCESS => 1;
 
-$VERSION = "0.13";
+$VERSION = "0.14";
 
 sub import {
     my($class, @fields) = @_;
@@ -95,7 +95,7 @@ If a typed lexical variable (my Dog $spot) holding a reference is used
 to access a hash element and a package/class with the same name as the
 type has declared class fields using this pragma, then the operation
 is turned into an array access at compile time.
-(L<perlop/"Pseudo-hashes: Using an array as a hash")
+(L<perlref/"Pseudo-hashes: Using an array as a hash">)
 
 The relatied C<base> pragma will combine fields from base classes and
 any fields declared using the C<fields> pragma.  This enables field
@@ -237,7 +237,7 @@ sub phash {
 =head1 SEE ALSO
 
 L<base>, L<public>, L<private>, L<protected>, L<Class::Fields>
-L<perlref/Pseudo-hashes: Using an array as a hash>
+L<perlref/"Pseudo-hashes: Using an array as a hash">
 
 =head1 B<NOTE>
 
