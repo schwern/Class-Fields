@@ -1,5 +1,12 @@
 Revision history for Perl extension Class::Fields.
 
+0.16  Wed Jul  9 17:12:39 PDT 2003
+    * Ensuring we pass the bleadperl@20100 tests.
+    * brought in sync with bleadperl@20100
+    - base.pm docs now mention explicitly that import() is not called
+      (bleadperl@19189)
+    - Fixing minor bug in bleadperl@19000 test which 5.8.1 exposes
+
 0.15  Wed Feb 26 23:31:08 CET 2003
     * base.pm now defending against stray $SIG{__DIE__} handlers interfering
     - Fixed a small typo in the tests which was causing a warning in 5.8.0.
