@@ -24,25 +24,25 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-	my($test, $name) = shift;
-	print "not " unless $test;
-	print "ok $test_num";
-	print " - $name" if defined $name;
-	print "\n";
-	$test_num++;
+    my($test, $name) = shift;
+    print "not " unless $test;
+    print "ok $test_num";
+    print " - $name" if defined $name;
+    print "\n";
+    $test_num++;
 }
 
 sub eqarray  {
-	my($a1, $a2) = @_;
-	return 0 unless @$a1 == @$a2;
-	my $ok = 1;
-	for (0..$#{$a1}) { 
-	    unless($a1->[$_] eq $a2->[$_]) {
-		$ok = 0;
-		last;
-	    }
-	}
-	return $ok;
+    my($a1, $a2) = @_;
+    return 0 unless @$a1 == @$a2;
+    my $ok = 1;
+    for (0..$#{$a1}) { 
+        unless($a1->[$_] eq $a2->[$_]) {
+        $ok = 0;
+        last;
+        }
+    }
+    return $ok;
 }
 
 # Change this to your # of ok() calls + 1
@@ -55,20 +55,20 @@ use fields qw(_no Pants who _up_yours);
 use fields qw(what);
 
 sub new { bless [\%Foo::FIELDS] }
-sub magic_new { bless [] } 	# Doesn't 100% work, perl's problem.
+sub magic_new { bless [] }  # Doesn't 100% work, perl's problem.
 
 package main;
 
 ok( eqarray( [sort keys %Foo::FIELDS], 
-			 [sort qw(_no Pants who _up_yours what)] ) 
+             [sort qw(_no Pants who _up_yours what)] ) 
   );
 
-use Class::Fields::Inspector;
+use Class::Fields;
 
 ok( eqarray( [sort &show_fields('Foo', 'Public')],
-			 [sort qw(Pants who what)]) );
+             [sort qw(Pants who what)]) );
 ok( eqarray( [sort &show_fields('Foo', 'Private')],
-			 [sort qw(_no _up_yours)]) );
+             [sort qw(_no _up_yours)]) );
 
 # We should get compile time failures field name typos
 eval q(my Foo $obj = Foo->new; $obj->{notthere} = "");
@@ -76,18 +76,18 @@ ok( $@ && $@ =~ /^No such field "notthere"/ );
 
 
 foreach (Foo->new) {
-	my Foo $obj = $_;
-	my %test = ( Pants => 'Whatever', _no => 'Yeah',
-				 what  => 'Ahh',      who => 'Moo',
-				 _up_yours => 'Yip' );
+    my Foo $obj = $_;
+    my %test = ( Pants => 'Whatever', _no => 'Yeah',
+                 what  => 'Ahh',      who => 'Moo',
+                 _up_yours => 'Yip' );
 
-	$obj->{Pants} = 'Whatever';
-	$obj->{_no}   = 'Yeah';
-	@{$obj}{qw(what who _up_yours)} = ('Ahh', 'Moo', 'Yip');
+    $obj->{Pants} = 'Whatever';
+    $obj->{_no}   = 'Yeah';
+    @{$obj}{qw(what who _up_yours)} = ('Ahh', 'Moo', 'Yip');
 
-	# Compile-time hashes don't act like hash slices properly yet. :(
-	# this has been perlbug'd.
-	while(my($k,$v) = each %test) {
-		ok($obj->[$Foo::FIELDS{$k}] eq $v);
-	}
+    # Compile-time hashes don't act like hash slices properly yet. :(
+    # this has been perlbug'd.
+    while(my($k,$v) = each %test) {
+        ok($obj->[$Foo::FIELDS{$k}] eq $v);
+    }
 }
