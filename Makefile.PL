@@ -33,7 +33,7 @@ CHANGE_WARN
         my($self, $orig_perl, $tests) = @_;
 
         my @perls = ($orig_perl);
-        push @perls, qw(perl5.005_03 bleadperl) 
+        push @perls, qw(perl5.8.0 bleadperl) 
           if $ENV{PERL_TEST_ALL};
 
         my $out;
