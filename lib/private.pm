@@ -40,6 +40,7 @@ __END__
 
   use private qw( _SexualPrefs _IsSpy );
 
+  # see the protected man page for an example
 
 =head1 DESCRIPTION
 
@@ -84,15 +85,16 @@ Additionally, private.pm is a bit clearer in its intent and is not
 necessarily implying use of pseudo-hashes.
 
 
+=head1 EXAMPLES
+
+See L<protected/SYNOPSIS> for an example of use.
+
+
 =head1 MUSINGS
 
 I fully expect private.pm to eventually mutate into a real pragma
 someday when a better formalized OO data system for Perl supplants the
 current fledgling pseudo-hashes.
-
-=head1 HISTORY
-
-This module was added as of version 5.6
 
 =head1 AUTHOR
 
