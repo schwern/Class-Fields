@@ -14,7 +14,7 @@ my $test_num = 1;
 BEGIN { $| = 1; $^W = 1; }
 END {print "not ok $test_num\n" unless $loaded;}
 print "1..$Total_tests\n";
-use Class::Fields;
+use Class::Fields::Inherit;
 $loaded = 1;
 print "ok $test_num - Compile\n";
 $test_num++;
