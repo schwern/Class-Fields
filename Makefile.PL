@@ -29,7 +29,7 @@ CHANGE_WARN
 
 WriteMakefile(
 	NAME               	=> $PACKAGE,
-	VERSION_FROM       	=> "lib/Class/Fields/Inheritance.pm", # finds $VERSION
+	VERSION_FROM       	=> 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM          	=> { Carp 		=> 0,
 						     Exporter 	=> 0,
 						   },
