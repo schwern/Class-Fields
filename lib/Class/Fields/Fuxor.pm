@@ -4,12 +4,19 @@ use strict;
 no strict 'refs';
 use vars qw(@ISA @EXPORT $VERSION);
 
-$VERSION = 0.05;
+use Carp::Assert;
+
+$VERSION = '0.06';
 
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(add_fields has_fields get_fields get_attr );
+@EXPORT = qw(add_fields 
+             add_field_set
+             has_fields 
+             get_fields 
+             get_attr 
+            );
 
 
 use constant TRUE       => (1==1);
@@ -30,6 +37,7 @@ use Class::Fields::Attribs;
   # As functions.
   use Class::Fields::Fuxor;
   add_fields($class, $attrib, @fields);
+  add_field_set($class, \@fields, \@attribs);
   has_fields($class);
   $fields = get_fields($class);
   $fattr  = get_attr($class);
@@ -92,34 +100,72 @@ For example:
 
 $attrib is built from the constants in Class::Fields::Attribs
 
-This 90% of fields.pm, public.pm, etc...
-
 =cut
 
 sub add_fields {
-    # Read the first two parameters.  The rest are field names.
-    my($proto, $attrib) = splice(@_, 0, 2);
-    my($class) = ref $proto || $proto;
-    
-    # Quick bail out if nothing is to be added.
-    return SUCCESS unless @_;
-    
-    my $fields = \%{"$class\::FIELDS"};
-    () = \%{"$class\::FIELDS"};  # Shut up a typo warning if %FIELDS
-                                   # doesn't already exist.
-    my $fattr = ($attr{$class} ||= []);
+    my($proto, $attrib, @fields) = @_;
+    add_field_set($proto, \@fields, [($attrib) x @fields]);
+}
 
-    foreach my $f (@_) {
-        if (my $fno = $fields->{$f}) {
+=pod
+
+=item B<add_field_set>
+
+  add_field_set($class, \@fields, \@attribs);
+
+Functionally similar to add_fields(), excepting that it can add a
+group of fields with different attributes all at once.  This is
+necessary for the proper functioning of fields.pm.
+
+Each element in @fields matches up with one in @attribs.  Obviously,
+the two arrays must be the same size.
+
+=cut
+
+sub add_field_set {
+    # Read the first two parameters.  The rest are field names.
+    my($proto, $new_fields, $new_attribs) = @_;
+
+    assert(@$new_fields == @$new_attribs) if DEBUG;
+
+    # Quick bail out if nothing is to be added.
+    return SUCCESS unless @$new_fields;
+
+    my($class) = ref $proto || $proto;
+        
+    my $fields = get_fields($class);
+    my $fattr  = get_attr($class);
+    my $next_fno = @$fattr;
+
+
+    # Check for existing fields not belonging to base classes.
+    # Indicates a possible module reload.
+    if ($next_fno > $fattr->[0]
+	and ($fields->{$new_fields->[0]} || 0) >= $fattr->[0])
+    {
+        # Reset the next pointer to let the reload work.
+	$next_fno = $fattr->[0];
+    }
+
+    # Go through the fields and attach attributes.
+    foreach my $idx (0..$#{$new_fields}) {
+        my $f      = $new_fields->[$idx];
+        my $attrib = $new_attribs->[$idx];
+        my $fno = $fields->{$f};
+
+        # Allow the module to be reloaded so long as field positions
+        # have not changed.
+        if ($fno and $fno != $next_fno) {
             require Carp;
-            if ($fattr->[$fno-1] & INHERITED) {
+            if ($fno < $fattr->[0]) {
                 Carp::carp("Hides field '$f' in base class") if $^W;
             } else {
                 Carp::croak("Field name '$f' already in use");
             }
         }
-        $fields->{$f} = @$fattr + 1;
-        push(@$fattr, $attrib);
+        $fields->{$f} = $next_fno;
+        $fattr->[$next_fno] = $attrib;
+        $next_fno++;
     }
 }
 
@@ -176,7 +222,7 @@ sub get_attr {
     my($proto) = shift;
     my($class) = ref $proto || $proto;
     unless ( defined $attr{$class} ) {
-        $attr{$class} = [];
+        $attr{$class} = [1];
     }
     return $attr{$class};
 }
