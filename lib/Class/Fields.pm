@@ -21,7 +21,7 @@ require Exporter;
               is_field
             );
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
@@ -231,7 +231,7 @@ sub show_fields {
 
     # Return all fields with the requested bitmask.
     my $fattr   = get_attr($class);
-    return grep { ($fattr->[$fields->{$_}-1] & $want_attr) == $want_attr} 
+    return grep { ($fattr->[$fields->{$_}] & $want_attr) == $want_attr} 
                 keys %$fields;
 }
 
@@ -259,7 +259,7 @@ sub field_attrib_mask {
     my $fields  = get_fields($class);
     my $fattr   = get_attr($class);
     return unless defined $fields->{$field};
-    return $fattr->[$fields->{$field} - 1];
+    return $fattr->[$fields->{$field}];
 }
 
 =pod
