@@ -1,10 +1,12 @@
 Revision history for Perl extension Class::Fields.
 
-0.15
+0.15  Wed Feb 26 23:31:08 CET 2003
     * base.pm now defending against stray $SIG{__DIE__} handlers interfering
     - Fixed a small typo in the tests which was causing a warning in 5.8.0.
-    * base.pm brought in sync with 5.8.0.
-    * Passes 5.8.0's regression tests for base.pm and fields.pm
+    * base.pm brought in sync with bleadperl@18784.
+    * Accounts for removal of pseudo-hashes in 5.9.0.
+    * Passes 5.8.0's regression tests.
+    * Passes bleadperl@18784's regression tests.
 
 0.14  Fri Aug 24 19:42:03 EDT 2001
     * Fixed a bug with base.pm accidentally setting $VERSION to
