@@ -12,15 +12,17 @@ base - Establish IS-A relationship with base class at compile time
 Roughly similar in effect to
 
     BEGIN {
-	require Foo;
-	require Bar;
-	push @ISA, qw(Foo Bar);
+		require Foo;
+		require Bar;
+		push @ISA, qw(Foo Bar);
     }
 
-Will also initialize the %FIELDS hash if one of the base classes has
-it.  Multiple inheritance of %FIELDS is not supported.  The 'base'
-pragma will croak if multiple base classes have a %FIELDS hash.  See
-L<fields> for a description of this feature.
+Will also initialize the %FIELDS hash if one or more of the base
+classes has it using all public and protected data members of the base
+classes.  Multiple Inheritance is supported.  If two or more base
+classes each wish to endow the same fields, the 'base' pragma will
+croak.  See L<fields>, L<public> and L<protected> for a description of
+this feature.
 
 When strict 'vars' is in scope I<base> also lets you assign to @ISA
 without having to declare @ISA with the 'vars' pragma first.
@@ -38,53 +40,57 @@ This module was introduced with Perl 5.004_04.
 
 =head1 SEE ALSO
 
-L<fields>
+L<fields>, L<public>, L<protected>
 
 =cut
 
 package base;
 use vars qw($VERSION);
-$VERSION = "1.00";
+$VERSION = "1.90";
+
+use constant SUCCESS => 1;
 
 sub import {
     my $class = shift;
-    my $fields_base;
+
+	return SUCCESS unless @_;
+
+	# List of base classes from which we will inherit %FIELDS.
+	my @fields_bases = ();
+
+    my $inheritor = caller(0);
 
     foreach my $base (@_) {
-	unless (exists ${"$base\::"}{VERSION}) {
-	    eval "require $base";
-	    # Only ignore "Can't locate" errors from our eval require.
-	    # Other fatal errors (syntax etc) must be reported.
-	    die if $@ && $@ !~ /^Can't locate .*? at \(eval /;
-	    unless (%{"$base\::"}) {
-		require Carp;
-			Carp::croak("Base class package \"$base\" is empty.\n",
-			    		"\t(Perhaps you need to 'use' the module ",
-			    		"which defines that package first.)");
-	    }
-	    ${"$base\::VERSION"} = "-1, set by base.pm"
-		unless exists ${"$base\::"}{VERSION};
+		unless (exists ${"$base\::"}{VERSION}) {
+	        eval "require $base";
+			# Only ignore "Can't locate" errors from our eval require.
+			# Other fatal errors (syntax etc) must be reported.
+			die if $@ && $@ !~ /^Can't locate .*? at \(eval /; #'#
+			unless (%{"$base\::"}) {
+				require Carp;
+				Carp::croak("Base class package \"$base\" is empty.\n",
+							"\t(Perhaps you need to 'use' the module ",
+							"which defines that package first.)");
+			}
+			${"$base\::"}{VERSION} = "-1, set by base.pm"
+			  unless exists ${"$base\::"}{VERSION};
+        }
+
+        # A simple test like (defined %{"$base\::FIELDS"}) will
+        # sometimes produce typo warnings because it would create
+        # the hash if it was not present before.
+        my $fglob;
+        if ($fglob = ${"$base\::"}{"FIELDS"} and *$fglob{HASH}) {
+            push @fields_bases, $base;
+		}
+    }
+
+    if( @fields_bases ) {
+		require Class::Fields::Inheritance;
+		Class::Fields::Inheritance::inherit($inheritor, @fields_bases);
 	}
 
-	# A simple test like (defined %{"$base\::FIELDS"}) will
-	# sometimes produce typo warnings because it would create
-	# the hash if it was not present before.
-	my $fglob;
-	if ($fglob = ${"$base\::"}{"FIELDS"} and *$fglob{HASH}) {
-	    if ($fields_base) {
-			require Carp;
-			Carp::croak("Can't multiply inherit %FIELDS");
-	    } else {
-			$fields_base = $base;
-	    }
-	}
-    }
-    my $pkg = caller(0);
-    push @{"$pkg\::ISA"}, @_;
-    if ($fields_base) {
-		require Class::Fields::Inheritance;
-		Class::Fields::Inheritance::inherit($pkg, $fields_base);
-    }
+    push @{"$inheritor\::ISA"}, @_;
 }
 
 1;
