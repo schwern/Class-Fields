@@ -18,7 +18,7 @@ t/Dummy.pm
 t/examples.t
 t/fields-5.6.0.t
 t/fields-5.8.0.t
-t/fields-5.9.0.t
+t/fields-blead18784.t
 t/fields-blead20100.t
 t/fields.t
 t/Fuxor.t

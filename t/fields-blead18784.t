@@ -1,6 +1,6 @@
 #!./perl -w
 
-# This is bleadperl's fields.t test somewhere around 19000
+# This is bleadperl's fields.t test at 18784
 
 # We skip this on anything older than 5.9.0 since some semantics changed
 # when pseudo-hashes were removed.
