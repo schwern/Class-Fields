@@ -13,7 +13,7 @@ use vars qw(@ISA @EXPORT $VERSION);
               show_fields
             );
 
-$VERSION = 0.05;
+$VERSION = 0.06;
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
