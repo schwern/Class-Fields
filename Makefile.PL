@@ -27,11 +27,30 @@ are upgrading from a version older than $LAST_API_CHANGE.
 CHANGE_WARN
 }
 
+{
+    package MY;
+    sub test_via_harness {
+        my($self, $orig_perl, $tests) = @_;
+
+        my @perls = ($orig_perl);
+        push @perls, qw(perl5.004 perl5.004_04 perl5.004_05 perl5.005_03 
+                        bleadperl) 
+          if $ENV{PERL_TEST_ALL};
+
+        my $out;
+        foreach my $perl (@perls) {
+            $out .= $self->SUPER::test_via_harness($perl, $tests);
+        }
+
+        return $out;
+    }
+}
+
+
 WriteMakefile(
     NAME                => $PACKAGE,
     VERSION_FROM        => 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM           => { Carp               => 0,
-                             Exporter           => 0,
                              constant           => 0,
                              Carp::Assert       => 0
                            },
