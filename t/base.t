@@ -23,7 +23,7 @@ $test_num++;
 # Insert your test code below (better if it prints "ok 13"
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
-sub ok {
+sub ok ($$) {
     my($test, $name) = @_;
     print "not " unless $test;
     print "ok $test_num";
@@ -46,7 +46,7 @@ sub eqarray  {
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 15 }
+BEGIN { $Total_tests = 16 }
 
 use vars qw( $W );
 BEGIN {
@@ -152,5 +152,17 @@ eval {
     require base;
     'base'->import(qw(E1 E2));
 };
-::ok( $@ and $@ =~ /Can't multiply inherit %FIELDS/i, 'Again, no multi inherit' );
+::ok( $@ && $@ =~ /Can't multiply inherit %FIELDS/i,
+                                               'Again, no multi inherit' );
+
+
+package No::Version;
+
+use vars qw($Foo);
+sub VERSION { 42 }
+
+package Test::Version;
+
+use base qw(No::Version);
+::ok( $No::Version::VERSION =~ /set by base\.pm/,          '$VERSION bug' );
 

@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.95';
+$VERSION = '1.96';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
@@ -9,10 +9,15 @@ use constant FAILURE => !SUCCESS;
 # Since loading Class::Fields::Fuxor unnecessarily is considered
 # inefficient, we define our own has_fields() to work with.
 sub has_fields {
-    my($proto) = shift;
-    my($class) = ref $proto || $proto;
-    my $fglob;
-    return $fglob = ${"$class\::"}{"FIELDS"} and *$fglob{HASH};
+    my($base) = shift;
+    my $fglob = ${"$base\::"}{FIELDS};
+    return $fglob && *$fglob{HASH};
+}
+
+sub has_version {
+    my($base) = shift;
+    my $fglob = ${"$base\::"}{VERSION};
+    return $fglob && $fglob{SCALAR};
 }
 
 
@@ -31,7 +36,7 @@ sub import {
 
         push @{"$inheritor\::ISA"}, $base;
 
-        unless (exists ${"$base\::"}{VERSION}) {
+        unless (has_version($base)) {
             eval "require $base";
             # Only ignore "Can't locate" errors from our eval require.
             # Other fatal errors (syntax etc) must be reported.
@@ -42,8 +47,8 @@ sub import {
                             "\t(Perhaps you need to 'use' the module ",
                             "which defines that package first.)");
             }
-            ${"$base\::"}{VERSION} = "-1, set by base.pm"
-              unless exists ${"$base\::"}{VERSION};
+            ${$base.'::VERSION'} = "-1, set by base.pm"
+              unless has_version($base);
         }
 
         # A simple test like (defined %{"$base\::FIELDS"}) will

@@ -21,7 +21,7 @@ require Exporter;
               is_field
             );
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
@@ -195,13 +195,14 @@ For example:
     use fields qw(this that meme);
 
     package Bar;
+    use Class::Fields;
     use base qw(Foo);
     use fields qw(salmon);
 
-    # @fields contains 'that' and 'meme' since they are Public and
+    # @fields contains 'this', 'that' and 'meme' since they are Public and
     # Inherited.  It doesn't contain 'salmon' since while it is
     # Public it is not Inherited.
-    @fields = show_fields('Bar', qw(Private Inherited));
+    @fields = show_fields('Bar', qw(Public Inherited));
 
 =cut
 
