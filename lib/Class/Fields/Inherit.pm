@@ -7,7 +7,7 @@ use vars qw(@ISA @EXPORT $VERSION);
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -29,6 +29,13 @@ sub inherit_fields {
     my $bfields = get_fields($base);
 
     $dattr->[0] = @$battr;
+
+    if( keys %$dfields ) {
+        warn "$derived is inheriting from $base but already has its own ".
+             "fields!\n".
+             "This will cause problems with pseudo-hashes.\n".
+             "Be sure you use base BEFORE declaring fields\n";
+    }
 
     # Iterate through the base's fields adding all the non-private
     # ones to the derived class.  Hang on to the original attribute
