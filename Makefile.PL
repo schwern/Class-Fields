@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-$PACKAGE = 'Module::Name';
+$PACKAGE = 'Class::Fields';
 ($PACKAGE_FILE) = $PACKAGE =~ /::([^:]+)/;
 $LAST_API_CHANGE = 0;
 
@@ -29,8 +29,10 @@ CHANGE_WARN
 
 WriteMakefile(
 	NAME               	=> $PACKAGE,
-	VERSION_FROM       	=> "$PACKAGE_FILE.pm", # finds $VERSION
-    PREREQ_PM          	=> {   },
+	VERSION_FROM       	=> "lib/Class/Fields/Inheritance.pm", # finds $VERSION
+    PREREQ_PM          	=> { Carp 		=> 0,
+						     Exporter 	=> 0,
+						   },
 	'dist'      		=> { COMPRESS 	=> 'gzip -9',
                              SUFFIX   	=> '.gz',
                              DIST_DEFAULT 	=> 'all tardist',

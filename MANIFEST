@@ -2,9 +2,9 @@ Changes
 MANIFEST
 Makefile.PL
 t/fields.t
-t/protected.t
-t/public.t
 t/base.t
+t/members.t
+t/Inheritance.t
 lib/Class/Fields/Inheritance.pm
 lib/fields.pm
 lib/protected.pm
