@@ -4,7 +4,7 @@ use strict;
 no strict 'refs';
 use vars qw(@ISA @EXPORT @EXPORT_OK %EXPORT_TAGS $VERSION);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -19,7 +19,8 @@ require Exporter;
 				'Attribs' 	=> [qw(_PUBLIC _PRIVATE _INHERITED _PROTECTED)],
 				'Inherit'	=> [qw(inherit add_fields)],
 			   );
-				
+
+use constant SUCCESS => 1;				
 
 sub _PUBLIC    	() { 1 }	# Open to the public, will be inherited.
 sub _PRIVATE   	() { 2 }	# Not to be used by anyone but that class, 
@@ -44,8 +45,12 @@ use vars qw(%attr);
 sub add_fields {
 	# Read the first two parameters.  The rest are field names.
 	my($package, $attrib) = splice(@_, 0, 2);
+
+	return SUCCESS unless @_;
 	
 	my $fields = \%{"$package\::FIELDS"};
+	() = \%{"$package\::FIELDS"};  # Shut up a typo warning if %FIELDS
+	                               # doesn't already exist.
     my $fattr = ($attr{$package} ||= []);
 
 	foreach my $f (@_) {
@@ -65,22 +70,34 @@ sub add_fields {
 
 sub inherit
 {
-    my($derived, $base) = @_;
+    my($derived, @bases) = @_;
 
-    if (keys %{"$derived\::FIELDS"}) {
-    	require Carp;
-		Carp::croak("Inherited %FIELDS can't override existing %FIELDS");
-    } else {
-		my $base_fields    = \%{"$base\::FIELDS"};
-		my $derived_fields = \%{"$derived\::FIELDS"};
+	return SUCCESS unless @bases;
 
-		$attr{$derived}[@{$attr{$base}}-1] = undef;
-		while (my($k,$v) = each %$base_fields) {
-			next if $attr{$base}[$v-1] & _PRIVATE;
-			$attr{$derived}[$v-1] = _INHERITED;
-			$derived_fields->{$k} = $v;
+    # Check to make sure no inherited fields overlap.
+    my %all_fields = ();
+
+	# Add an optimization for one base later.
+
+    foreach my $base (@bases) {
+		my $base_fields = \%{"$base\::FIELDS"};
+
+		# For all base fields which are not private.
+		foreach my $field ( grep { !($attr{$base}[$base_fields->{$_}-1]
+									 & _PRIVATE) }
+							     keys %$base_fields ) {
+			if( exists $all_fields{$field} ) {
+				my $conflict = $all_fields{$field};
+				require Carp;
+				Carp::croak("Both $base and $conflict want to endow ",
+							"$derived with $field");
+			}
+
+			$all_fields{$field} = $base;
 		}
 	}
+
+	add_fields($derived, _INHERITED, keys %all_fields);
 }
 
 
