@@ -1,86 +1,46 @@
 package fields;
 
-use 5.005;
-use strict;
-no strict 'refs';
-use vars qw($VERSION);
-
-use Class::Fields::Fuxor;
-use Class::Fields::Attribs;
-use Carp::Assert;
-
-use constant SUCCESS => 1;
-
-$VERSION = "0.15";
-
-sub import {
-    my($class, @fields) = @_;
-    
-    my $package = caller(0);
-    
-    return SUCCESS unless @fields;
-
-    my @attribs = ();
-    foreach my $field (@fields) {
-        my $attr = ($field =~ /^_/) ? PRIVATE : PUBLIC;
-
-        push @attribs, $attr;
-    }
-
-    assert(@fields == @attribs) if DEBUG;
-
-    # Can't use add_fields() since fields.pm needs them all at once
-    # for magical reasons.  Also preserves field ordering.
-    add_field_set($package, \@fields, \@attribs);
-}
-
-=pod
-
 =head1 NAME
 
 fields - compile-time class fields
 
 =head1 SYNOPSIS
 
-  package Foo;
-  use fields qw(foo bar _Foo_private);
+    {
+        package Foo;
+        use fields qw(foo bar _Foo_private);
+	sub new {
+	    my Foo $self = shift;
+	    unless (ref $self) {
+		$self = fields::new($self);
+		$self->{_Foo_private} = "this is Foo's secret";
+	    }
+	    $self->{foo} = 10;
+	    $self->{bar} = 20;
+	    return $self;
+	}
+    }
 
-  sub new {
-      my $proto = shift;
-      my $class = ref $proto || $proto;
-      
-      my Foo $self = fields::new($class);
+    my $var = Foo->new;
+    $var->{foo} = 42;
 
-      $self->{_Foo_private} = "this is Foo's secret";
-      $self->{foo} = 'everybody knows';
-      $self->{bar} = 'an open bar';
+    # this will generate an error
+    $var->{zap} = 42;
 
-      return $self;
-  }
-
-  my Foo $foo_obj = Foo->new;
-  $foo_obj->{foo} = 42;
-
-  # This will generate a compile-time error.  zap is not a
-  # public field of Foo.
-  $foo_obj->{zap} = 42;
-
-
-  # subclassing
-  package Bar;
-  use base 'Foo';
-  use fields qw(baz _Bar_private);  # fields not shared with foo.
-
-  sub new {
-      my $proto = shift;
-      $self = $proto->SUPER::new;  # call Foo's new()
-
-      $self->{baz} = 'and stuff';  # initialize my own fields.
-      $self->{_Bar_private} = 'our little secret';
-
-      return $self;
-  }
-
+    # subclassing
+    {
+        package Bar;
+        use base 'Foo';
+        use fields qw(baz _Bar_private);	# not shared with Foo
+	sub new {
+	    my $class = shift;
+	    my $self = fields::new($class);
+	    $self->SUPER::new();		# init base fields
+	    $self->{baz} = 10;			# init own fields
+	    $self->{_Bar_private} = "this is Bar's secret";
+	    return $self;
+	}
+    }
 
 =head1 DESCRIPTION
 
@@ -91,171 +51,277 @@ hash of the calling package, but this may change in future versions.
 Do B<not> update the %FIELDS hash directly, because it must be created
 at compile-time for it to be fully useful, as is done by this pragma.
 
-If a typed lexical variable (my Dog $spot) holding a reference is used
-to access a hash element and a package/class with the same name as the
-type has declared class fields using this pragma, then the operation
-is turned into an array access at compile time.
-(L<perlref/"Pseudo-hashes: Using an array as a hash">)
+  Only valid for perl before 5.9.0:
 
-The relatied C<base> pragma will combine fields from base classes and
-any fields declared using the C<fields> pragma.  This enables field
-inheritance to work properly.  Due to the limitations of the
-pseudo-hash implementation, it is important to use base B<before>
-declaring any new fields.
+  If a typed lexical variable holding a reference is used to access a
+  hash element and a package with the same name as the type has
+  declared class fields using this pragma, then the operation is
+  turned into an array access at compile time.
 
-Field names that start with an underscore character are made private
-to a class and are not visible to subclasses.  Inherited fields can be
+
+The related C<base> pragma will combine fields from base classes and any
+fields declared using the C<fields> pragma.  This enables field
+inheritance to work properly.
+
+Field names that start with an underscore character are made private to
+the class and are not visible to subclasses.  Inherited fields can be
 overridden but will generate a warning if used together with the C<-w>
 switch.
 
-The effect of all this is that you can have objects with named fields
-which are as compact and as fast arrays to access.  This only works as
-long as the objects are accessed through properly typed variables.  If
-the objects are not typed, access is only checked at run-time and
-performance may suffer a bit.
+  Only valid for perls before 5.9.0:
 
-=head2 Functions
+  The effect of all this is that you can have objects with named
+  fields which are as compact and as fast arrays to access. This only
+  works as long as the objects are accessed through properly typed
+  variables. If the objects are not typed, access is only checked at
+  run time.
 
-=over 4
 
-=item B<new>
 
-  $obj = fields::new($class);
-  $obj = fields::new($another_obj);
+The following functions are supported:
 
-fields::new() creates and blesses a pseudo-hash comprised of the
-fields declared using the C<fields> pragma into the specified class.
+=over 8
+
+=item new
+
+B< perl before 5.9.0: > fields::new() creates and blesses a
+pseudo-hash comprised of the fields declared using the C<fields>
+pragma into the specified class.
+
+B< perl 5.9.0 and higher: > fields::new() creates and blesses a
+restricted-hash comprised of the fields declared using the C<fields>
+pragma into the specified class.
+
+
 This makes it possible to write a constructor like this:
 
     package Critter::Sounds;
     use fields qw(cat dog bird);
 
     sub new {
-        my $proto = shift;
-        my $class = ref $proto || $proto;
-
-        my Critter::Sounds $self = fields::new($class);
-
-        %$self = (
-                  cat     => 'meow',
-                  dog     => 'bark',
-                  dogcow  => 'moof',
-                 );
-        
-        return $self;
+	my $self = shift;
+	$self = fields::new($self) unless ref $self;
+	$self->{cat} = 'meow';				# scalar element
+	@$self{'dog','bird'} = ('bark','tweet');	# slice
+	return $self;
     }
 
-=cut
+=item phash
 
-sub new {
-    my $proto = shift;
-    my $class = ref $proto || $proto;
-    return bless [\%{$class . "::FIELDS"}], $class;
-}
+B< before perl 5.9.0: > 
 
-=pod
+  fields::phash() can be used to create and initialize a plain (unblessed)
+  pseudo-hash.  This function should always be used instead of creating
+  pseudo-hashes directly.
 
-=item B<phash>
+  If the first argument is a reference to an array, the pseudo-hash will
+  be created with keys from that array.  If a second argument is supplied,
+  it must also be a reference to an array whose elements will be used as
+  the values.  If the second array contains less elements than the first,
+  the trailing elements of the pseudo-hash will not be initialized.
+  This makes it particularly useful for creating a pseudo-hash from
+  subroutine arguments:
 
-    $phash = fields::phash;
-    $phash = fields::phash(\@keys);
-    $phash = fields::phash(\@keys, \@values);
-    $phash = fields::phash(%hash);
+      sub dogtag {
+         my $tag = fields::phash([qw(name rank ser_num)], [@_]);
+      }
 
-fields::phash() can be used to create and initialize a plain
-(unblessed) pseudo-hash.  It is prefered that this function be used
-instead of creating pseudo-hashes directly.
+  fields::phash() also accepts a list of key-value pairs that will
+  be used to construct the pseudo hash.  Examples:
 
-If no arguments are given the resulting pseudohash will be empty and
-have no fields.
+      my $tag = fields::phash(name => "Joe",
+                             rank => "captain",
+                             ser_num => 42);
 
-The optional @keys will be used to initialize the keys/fields of the
-resulting hash.  @values, also optional, will be used as the values
-for each key.  If @values contains less elements than @keys, the
-trailing elements of the pseudo-hash will not be initialized.  If
-there are more @values than @keys the function will throw a warning
-(it may die in the future).
+      my $pseudohash = fields::phash(%args);
 
-This makes it particularly useful for creating a pseudo-hash from
-subroutine arguments.
+B< perl 5.9.0 and higher: >
 
-    sub dogtag {
-        my $tag = fields::phash([qw(name rank serial_num)], [@_]);
-    }
-
-fields::phash() also accepts a plain %hash used to construct the
-pseudo-hash.  Examples:
-
-    my $tag = fields::phash(name       => 'Kirk',
-                            rank       => 'Captain',
-                            serial_num => 42
-                           );
-
-    my $phash = fields::phash(%args);
-
-=cut
-
-sub phash {
-    my $keys = {};
-    my $values = [];
-
-    if( ref $_[0] ) {   # Called as phash(\@keys, \@values)
-        my($keys_in, $vals_in) = @_;
-
-        @{$keys}{@$keys_in} = 1..@$keys_in;
-        $values = $vals_in if defined $vals_in;
-
-        if( @_ > 2 ) {      # sanity check
-            require Carp;
-            Carp::croak("Expected at most two array refs.");
-        }
-    }
-    else {
-        if( @_ % 2 ) {
-            require Carp;
-            Carp::croak("Odd number of elements initializing pseudo-hash.");
-        }
-
-        my $i = 0;
-        @$keys{grep ++$i %2, @_} = 1 .. @_ / 2;
-
-        $i = 0;
-        $values = [grep $i++ % 2, @_];
-    }
-
-    # Make sure we didn't get too many values.
-    if( @$values > keys %$keys ) {
-        require Carp;
-        Carp::carp("More values than keys were given.");
-    }
-    
-    return [$keys, @$values];
-}
-
-=pod
+Pseudo-hashes have been removed from Perl as of 5.10.  Consider using
+restricted hashes instead.  Using fields::phash() will cause an error.
 
 =back
 
 =head1 SEE ALSO
 
-L<base>, L<public>, L<private>, L<protected>, L<Class::Fields>
-L<perlref/"Pseudo-hashes: Using an array as a hash">
-
-=head1 B<NOTE>
-
-This is the version of fields.pm which comes with Class::Fields.  NOT
-the version which is distributed with Perl.  This version should
-safely emulate everything that perl 5.6.0's fields.pm does.  It passes
-all of 5.6.0's regression tests.
-
-It should also work under 5.005_03, although if you're going to be
-screwing around with pseudohashes you really should upgrade to 5.6.0.
-
-=head1 AUTHOR
-
-Michael G Schwern <schwern@pobox.com>.  fields::new(), fields::phash()
-and most of the documentation taken from the original fields.pm.
+L<base>,
 
 =cut
+
+require 5.005;
+use strict;
+no strict 'refs';
+eval q{use warnings::register;} if $] >= 5.006;
+use vars qw(%attr $VERSION);
+
+$VERSION = "1.0201";
+
+# some constants
+sub _PUBLIC    () { 1 }
+sub _PRIVATE   () { 2 }
+
+# The %attr hash holds the attributes of the currently assigned fields
+# per class.  The hash is indexed by class names and the hash value is
+# an array reference.  The first element in the array is the lowest field
+# number not belonging to a base class.  The remaining elements' indices
+# are the field numbers.  The values are integer bit masks, or undef
+# in the case of base class private fields (which occupy a slot but are
+# otherwise irrelevant to the class).
+
+sub import {
+    my $class = shift;
+    return unless @_;
+    my $package = caller(0);
+    # avoid possible typo warnings
+    %{"$package\::FIELDS"} = () unless %{"$package\::FIELDS"};
+    my $fields = \%{"$package\::FIELDS"};
+    my $fattr = ($attr{$package} ||= [1]);
+    my $next = @$fattr;
+
+    if ($next > $fattr->[0]
+	and ($fields->{$_[0]} || 0) >= $fattr->[0])
+    {
+	# There are already fields not belonging to base classes.
+	# Looks like a possible module reload...
+	$next = $fattr->[0];
+    }
+    foreach my $f (@_) {
+	my $fno = $fields->{$f};
+
+	# Allow the module to be reloaded so long as field positions
+	# have not changed.
+	if ($fno and $fno != $next) {
+	    require Carp;
+            if ($fno < $fattr->[0]) {
+              if ($] < 5.006001) {
+                warn("Hides field '$f' in base class") if $^W;
+              } else {
+                warnings::warnif("Hides field '$f' in base class") ;
+              }
+            } else {
+                Carp::croak("Field name '$f' already in use");
+            }
+	}
+	$fields->{$f} = $next;
+        $fattr->[$next] = ($f =~ /^_/) ? _PRIVATE : _PUBLIC;
+	$next += 1;
+    }
+    if (@$fattr > $next) {
+	# Well, we gave them the benefit of the doubt by guessing the
+	# module was reloaded, but they appear to be declaring fields
+	# in more than one place.  We can't be sure (without some extra
+	# bookkeeping) that the rest of the fields will be declared or
+	# have the same positions, so punt.
+	require Carp;
+	Carp::croak ("Reloaded module must declare all fields at once");
+    }
+}
+
+sub inherit  { # called by base.pm when $base_fields is nonempty
+    my($derived, $base) = @_;
+    my $base_attr = $attr{$base};
+    my $derived_attr = $attr{$derived} ||= [];
+    # avoid possible typo warnings
+    %{"$base\::FIELDS"} = () unless %{"$base\::FIELDS"};
+    %{"$derived\::FIELDS"} = () unless %{"$derived\::FIELDS"};
+    my $base_fields    = \%{"$base\::FIELDS"};
+    my $derived_fields = \%{"$derived\::FIELDS"};
+
+    $derived_attr->[0] = $base_attr ? scalar(@$base_attr) : 1;
+    while (my($k,$v) = each %$base_fields) {
+	my($fno);
+	if ($fno = $derived_fields->{$k} and $fno != $v) {
+	    require Carp;
+	    Carp::croak ("Inherited %FIELDS can't override existing %FIELDS");
+	}
+	if ($base_attr->[$v] & _PRIVATE) {
+	    $derived_attr->[$v] = undef;
+	} else {
+	    $derived_attr->[$v] = $base_attr->[$v];
+	    $derived_fields->{$k} = $v;
+	}
+     }
+}
+
+sub _dump  # sometimes useful for debugging
+{
+    for my $pkg (sort keys %attr) {
+	print "\n$pkg";
+	if (@{"$pkg\::ISA"}) {
+	    print " (", join(", ", @{"$pkg\::ISA"}), ")";
+	}
+	print "\n";
+	my $fields = \%{"$pkg\::FIELDS"};
+	for my $f (sort {$fields->{$a} <=> $fields->{$b}} keys %$fields) {
+	    my $no = $fields->{$f};
+	    print "   $no: $f";
+	    my $fattr = $attr{$pkg}[$no];
+	    if (defined $fattr) {
+		my @a;
+		push(@a, "public")    if $fattr & _PUBLIC;
+		push(@a, "private")   if $fattr & _PRIVATE;
+		push(@a, "inherited") if $no < $attr{$pkg}[0];
+		print "\t(", join(", ", @a), ")";
+	    }
+	    print "\n";
+	}
+    }
+}
+
+if ($] < 5.009) {
+  eval <<'EOC';
+  sub new {
+    my $class = shift;
+    $class = ref $class if ref $class;
+    return bless [\%{$class . "::FIELDS"}], $class;
+  }
+EOC
+} else {
+  eval <<'EOC';
+  sub new {
+    my $class = shift;
+    $class = ref $class if ref $class;
+    use Hash::Util;
+    my $self = bless {}, $class;
+    Hash::Util::lock_keys(%$self, keys %{$class.'::FIELDS'});
+    return $self;
+  }
+EOC
+}
+
+sub phash {
+    die "Pseudo-hashes have been removed from Perl" if $] >= 5.009;
+    my $h;
+    my $v;
+    if (@_) {
+       if (ref $_[0] eq 'ARRAY') {
+           my $a = shift;
+           @$h{@$a} = 1 .. @$a;
+           if (@_) {
+               $v = shift;
+               unless (! @_ and ref $v eq 'ARRAY') {
+                   require Carp;
+                   Carp::croak ("Expected at most two array refs\n");
+               }
+           }
+       }
+       else {
+           if (@_ % 2) {
+               require Carp;
+               Carp::croak ("Odd number of elements initializing pseudo-hash\n");
+           }
+           my $i = 0;
+           @$h{grep ++$i % 2, @_} = 1 .. @_ / 2;
+           $i = 0;
+           $v = [grep $i++ % 2, @_];
+       }
+    }
+    else {
+       $h = {};
+       $v = [];
+    }
+    [ $h, @$v ];
+
+}
 
 1;
