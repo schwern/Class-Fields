@@ -35,6 +35,7 @@ WriteMakefile(
                              constant           => 0,
                              Carp::Assert       => 0
                            },
+    INSTALLDIRS         => 'perl',
     'dist'              => { COMPRESS   => 'gzip -9',
                              SUFFIX     => '.gz',
                              DIST_DEFAULT   => 'all tardist',

@@ -1,5 +1,9 @@
 Revision history for Perl extension Class::Fields.
 
+0.12  Mon Apr  2 11:43:02 BST 2001
+    - Now properly installs base.pm and fields.pm into the core libraries
+      rather than site_perl.
+
 0.11  Wed Dec 13 21:29:24 EST 2000
     - Alot of little doc fixes (thanks Tels)
     - Added Carp::Assert to the dependencies (accidentally left out)
