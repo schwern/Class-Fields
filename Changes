@@ -1,5 +1,7 @@
 Revision history for Perl extension Class::Fields.
-
+0.09  Fri Apr 14 23:00:52 EDT 2000
+    - Added is_field() to Class::Fields
+    - Now exporting is_public, etc...
 0.08  Sat Feb 26 04:16:24 EST 2000
     - Forgot to require Exporter in a few places.  This got by somehow in
       5.005_03 but not 5.6.
