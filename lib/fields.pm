@@ -159,7 +159,7 @@ unless( eval q{require warnings::register; warnings::register->import} ) {
 }
 use vars qw(%attr $VERSION);
 
-$VERSION = "1.0201";
+$VERSION = "1.0202";
 
 # some constants
 sub _PUBLIC    () { 1 }
