@@ -80,12 +80,12 @@ eval {
 eval {
     $trousers->{_Priv} = "Yarrow";
 };
-::ok($@ =~ /no such( \w+)? field/i);
+::ok($@ =~ /no such( [\w-]+)? field/i);
 
 eval {
     $trousers->{_Pantaloons} = "Yarrow";
 };
-::ok($@ =~ /no such( \w+)? field/i);
+::ok($@ =~ /no such( [\w-]+)? field/i);
 
 
 
