@@ -4,19 +4,23 @@ use strict;
 
 use vars qw($VERSION);
 
-$VERSION = 0.02;
+$VERSION = 0.04;
 
-use Class::Fields qw(:Attribs :Fields);
+use Class::Fields::Fuxor;
+use Class::Fields::Attribs;
 
 sub import {
-	#Dump the class.
-	shift;
-	
-	my $package = caller;
-	add_fields($package, PROTECTED, @_);
+    #Dump the class.
+    shift;
+    
+    my $package = caller;
+    add_fields($package, PROTECTED, @_);
 }
 
-return 'I like traffic lights';
+return <<TIP;
+Protect your member!  Wear a cup!
+TIP
+
 __END__
 =pod
 
@@ -46,6 +50,18 @@ protected - "private" data fields which are inherited by child classes
     
 
 =head1 DESCRIPTION
+
+=over 4
+
+=item I<Protected member.>
+
+Restricted data or functionality.  An attribute or method only
+directly accessible to methods of the same class or of a subclass, but
+inaccessible from any other scope.
+
+From B<"Object Oriented Perl"> by Damian Conway
+
+=back
 
 The C<protected> module implements something like Protected data
 members you might find in a language with a more traditional OO
@@ -82,6 +98,5 @@ Michael G Schwern <schwern@pobox.com>
 =head1 SEE ALSO
 
 L<public>, L<private>, L<fields>, L<Class::Fields>, L<base>
-
 
 =cut
