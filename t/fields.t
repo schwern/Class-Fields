@@ -24,7 +24,7 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-    my($test, $name) = shift;
+    my($test, $name) = @_;
     print "not " unless $test;
     print "ok $test_num";
     print " - $name" if defined $name;
