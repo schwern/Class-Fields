@@ -27,6 +27,7 @@ use constant FAILURE 	=> !SUCCESS;
   $fields = get_fields($class);
   $fattr  = get_attr($class);
 
+
   # This gives you the constants PUBLIC PRIVATE INHERITED and PROTECTED
   use Class::Fields qw(:Attribs);
 
@@ -44,9 +45,17 @@ use constant FAILURE 	=> !SUCCESS;
 =head1 DESCRIPTION
 
 This is a module for low level manipuation of the %FIELDS hash and its
-accompying %attr hash.  Typically one does not want to mess with this
-stuff and instead uses fields.pm and friends or perhaps
-Class::Fields::Inspector.
+accompying %fields::attr hash without actually touching them.  Modules
+like fields.pm, base.pm and public.pm make use of this module.
+
+%FIELDS and %fields::attr are currently used to store information
+about the data members of classes.  Since the current data inheritance
+system, built around pseudo-hashes, is considered a bit twitchy, it is
+wise to encapsulate and rope it off in the expectation that it will be
+replaced with something better.
+
+Typically one does not want to mess with this stuff and instead uses
+fields.pm and friends or perhaps Class::Fields::Inspector.
 
 =cut
 
@@ -169,6 +178,10 @@ indicated by the $class's %FIELDS has.  For example:
     # Get the attributes for '_that' in the class 'Foo'.
     $that_attribs = print $fattr->[$Foo::FIELDS->{_that}];
 
+When possible, one should avoid using this function since it exposes
+more implementation detail than I'd like.  Class::Fields::Inspector
+should provide most of the functionality you'll need.
+
 =cut
 
 sub get_attr {
@@ -190,6 +203,10 @@ Gets a reference to the %FIELDS hash for the given $class.  It will
 autogenerate a %FIELDS hash if one doesn't already exist.  If you
 don't want this behavior, be sure to check beforehand with
 has_fields().
+
+When possible, one should avoid using this function since it exposes
+more implementation detail than I'd like.  Class::Fields::Inspector
+should provide most of the functionality you'll need.
 
 =cut
 
