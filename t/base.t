@@ -174,7 +174,7 @@ package Test::SIGDIE;
         ::ok(0, 'sigdie not caught, this test should not run') 
     };
     eval {
-      base->import qw(Huh::Boo);
+      'base'->import(qw(Huh::Boo));
     };
 
     ::ok($@ =~ /^Base class package "Huh::Boo" is empty./, 
