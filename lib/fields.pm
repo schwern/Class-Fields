@@ -99,7 +99,9 @@ is turned into an array access at compile time.
 
 The relatied C<base> pragma will combine fields from base classes and
 any fields declared using the C<fields> pragma.  This enables field
-inheritance to work properly.
+inheritance to work properly.  Due to the limitations of the
+pseudo-hash implementation, it is important to use base B<before>
+declaring any new fields.
 
 Field names that start with an underscore character are made private
 to a class and are not visible to subclasses.  Inherited fields can be
