@@ -15,9 +15,7 @@ $PACKAGE = 'Class::Fields';
 ($PACKAGE_FILE) = $PACKAGE =~ /::([^:]+)/;
 $LAST_API_CHANGE = 0;
 
-eval {
-    eval "require $PACKAGE";
-};
+eval "require $PACKAGE";
 
 unless ($@) { # Make sure we did find the module.
     print <<"CHANGE_WARN" if ${$PACKAGE.'::VERSION'} < $LAST_API_CHANGE;
@@ -32,9 +30,10 @@ CHANGE_WARN
 WriteMakefile(
     NAME                => $PACKAGE,
     VERSION_FROM        => 'lib/Class/Fields.pm', # finds $VERSION
-    PREREQ_PM           => { Carp       => 0,
-                             Exporter   => 0,
-                             constant   => 0,
+    PREREQ_PM           => { Carp               => 0,
+                             Exporter           => 0,
+                             constant           => 0,
+                             Carp::Assert       => 0
                            },
     'dist'              => { COMPRESS   => 'gzip -9',
                              SUFFIX     => '.gz',
