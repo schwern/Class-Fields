@@ -21,7 +21,7 @@ require Exporter;
               is_field
             );
 
-$VERSION = '0.20';
+$VERSION = '0.201';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
