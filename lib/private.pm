@@ -4,9 +4,9 @@ use strict;
 
 use vars qw($VERSION);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
-use Class::Fields::Inheritance qw(:Attribs :Inherit);
+use Class::Fields qw(:Attribs :Fields);
 
 sub import {
 	#Dump the class.
@@ -20,7 +20,7 @@ sub import {
 		 			   "leading underscore") if $^W;
 		}
 	}
-	add_fields($pack, _PRIVATE, @_);
+	add_fields($pack, PRIVATE, @_);
 }
 
 
