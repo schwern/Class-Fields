@@ -16,7 +16,7 @@ END {print "not ok $test_num\n" unless $loaded;}
 print "1..$Total_tests\n";
 use base;
 $loaded = 1;
-print "ok $test_num\n";
+print "ok $test_num - Compiled\n";
 $test_num++;
 ######################### End of black magic.
 
@@ -24,7 +24,7 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-	my($test, $name) = shift;
+	my($test, $name) = @_;
 	print "not " unless $test;
 	print "ok $test_num";
 	print " - $name" if defined $name;
@@ -48,14 +48,15 @@ sub eqarray  {
 # Change this to your # of ok() calls + 1
 BEGIN { $Total_tests = 15 }
 
-my $w;
+use vars qw( $W );
 BEGIN {
+	$W = 0;
 	$SIG{__WARN__} = sub {
 		if ($_[0] =~ /^Hides field '.*?' in base class/) {
-			$w++;
+			$W++;
 		}
 		else {
-			print $_[0];
+			warn $_[0];
 		}
 	};
 }
@@ -95,9 +96,12 @@ sub m {}
 package D5;
 use base qw(M B2);
 
-# Test multiple inheritance
+# Test that multiple inheritance fails.
 package D6;
-use base qw(B2 M B3);
+eval {
+	'base'->import(qw(B2 M B3));
+};
+::ok($@ =~ /can't multiply inherit %FIELDS/i, 'No multiple field inheritance');
 
 package Foo::Bar;
 use base 'B1';
@@ -118,7 +122,6 @@ my %EXPECT = (
 			  D4 => [qw(b1 b2 d1 _d3 d3)],
 			  M  => [qw()],
 			  D5 => [qw(b1 b2)],
-			  D6 => [qw(b1 b2 b4 b6)],
 			  'Foo::Bar' 		=> [qw(b1 b2 b3)],
 			  'Foo::Bar::Baz' 	=> [qw(b1 b2 b3 foo bar baz)],
 			 );
@@ -127,11 +130,12 @@ while(my($class, $efields) = each %EXPECT) {
 	no strict 'refs';
 	my @fields = keys %{$class.'::FIELDS'};
 	
-	::ok( eqarray([sort @$efields], [sort @fields]) );
+	::ok( eqarray([sort @$efields], [sort @fields]), 
+                                                  "%FIELDS check:  $class" );
 }
 
 # Did we get the appropriate amount of warnings?
-::ok($w == 1);
+::ok($W == 1, 'got the right warnings');
 
 
 # Break multiple inheritance with a field name clash.
@@ -146,7 +150,7 @@ eval {
 
 	# The error must occur at run time for the eval to catch it.
 	require base;
-	base->import(qw(E1 E2));
+	'base'->import(qw(E1 E2));
 };
-::ok( $@ and $@ =~ /Both E(1|2) and E(1|2) want to endow Broken with this/ );
+::ok( $@ and $@ =~ /Can't multiply inherit %FIELDS/i, 'Again, no multi inherit' );
 
