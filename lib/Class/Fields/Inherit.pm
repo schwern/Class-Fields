@@ -2,7 +2,7 @@ package Class::Fields::Inherit;
 
 use strict;
 no strict 'refs';
-use vars qw(@ISA @EXPORT);
+use vars qw(@ISA @EXPORT $VERSION);
 
 use Class::Fields qw(:Attribs :Fields);
 
@@ -13,12 +13,15 @@ require Exporter;
 
 @EXPORT = qw( inherit_fields );
 
+use constant SUCCESS => 1;
+use constant FAILURE => !SUCCESS;
+
 #'#
 sub inherit_fields
 {
     my($derived, $base) = @_;
 
-	return SUCCESS unless $bases;
+	return SUCCESS unless $base;
 
 	my $base_fields = get_fields($base);
 
