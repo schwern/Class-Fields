@@ -1,7 +1,7 @@
 package base;
 
 use vars qw($VERSION);
-$VERSION = '1.9801';
+$VERSION = '1.9802';
 
 use constant SUCCESS => (1==1);
 use constant FAILURE => !SUCCESS;
@@ -116,7 +116,7 @@ Roughly similar in effect to
         push @ISA, qw(Foo Bar);
     }
 
-Will also initialize the %FIELDS hash if one of the base classes has
+Will also initialize the fields if one of the base classes has
 it using all public and protected data members of the base classes.
 Multiple Inheritence of fields is B<NOT> supported.  If two or more
 base classes each have inheritable fields the 'base' pragma will
@@ -146,11 +146,11 @@ This module was introduced with Perl 5.004_04.
 
 This is the base.pm which was installed as part of the Class::Fields
 package.  B<NOT> the base.pm which is distributed with Perl.  This
-version should safely emulate everything that 5.6.0's base.pm does.
-It passes all of 5.6.0's regression tests.
+version should safely emulate everything that 5.8.1's base.pm does.
+It passes all of 5.6.0, 5.8.0 and 5.8.1's regression tests.
 
 It should also work under 5.005_03, although if you're going to be
-screwing around with pseudohashes you really should upgrade to 5.6.0.
+screwing around with pseudo-hashes you really should upgrade to 5.8.0.
 
 =head1 SEE ALSO
 
