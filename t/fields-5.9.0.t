@@ -1,11 +1,13 @@
 #!./perl -w
 
+# This is bleadperl's fields.t test somewhere around 19000
+
 # We skip this on anything older than 5.9.0 since some semantics changed
 # when pseudo-hashes were removed.
 if( $] < 5.009 ) {
     print "1..0 # skip fields.pm changed to restricted hashes in 5.9.0\n";
     exit;
-  }
+}
 
 my $w;
 
@@ -203,11 +205,11 @@ is( $Eval1::VERSION, 1.01 );
 is( $Eval2::VERSION, 1.02 );
 
 
-eval q{use base reallyReAlLyNotexists;};
+eval q{use base 'reallyReAlLyNotexists';};
 like( $@, qr/^Base class package "reallyReAlLyNotexists" is empty./,
                                           'base with empty package');
 
-eval q{use base reallyReAlLyNotexists;};
+eval q{use base 'reallyReAlLyNotexists';};
 like( $@, qr/^Base class package "reallyReAlLyNotexists" is empty./,
                                           '  still empty on 2nd load');
 
