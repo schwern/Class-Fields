@@ -38,15 +38,15 @@ sub eqarray  {
     my $ok = 1;
     for (0..$#{$a1}) { 
         unless($a1->[$_] eq $a2->[$_]) {
-        $ok = 0;
-        last;
+            $ok = 0;
+            last;
         }
     }
     return $ok;
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 19 }
+BEGIN { $Total_tests = 21 }
 
 package Foo;
 
@@ -102,3 +102,9 @@ use Class::Fields::Attribs;
                                         'field_attribs()'                   );
 
 # Can't really think of a way to test dump_all_attribs().
+
+
+# Make sure show_fields() doens't autovivify %FIELDS.
+use Class::Fields::Fuxor;
+::ok( !show_fields("I::have::no::FIELDS") );
+::ok( !has_fields("I::have::no::FIELDS"),         "has_fields() autoviv bug" );
