@@ -1,6 +1,8 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
+my $Has_PH = $] < 5.009;
+
 ######################### We start with some black magic to print on failure.
 
 # Change 1..1 below to 1..last_test_to_print .
@@ -23,7 +25,7 @@ $test_num++;
 # Insert your test code below (better if it prints "ok 13"
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
-sub ok {
+sub ok ($;$) {
     my($test, $name) = @_;
     print "not " unless $test;
     print "ok $test_num";
@@ -54,7 +56,7 @@ package Foo;
 use fields qw(_no Pants who _up_yours);
 use fields qw(what);
 
-sub new { bless [\%Foo::FIELDS] }
+sub new { fields::new(shift) }
 sub magic_new { bless [] }  # Doesn't 100% work, perl's problem.
 
 package main;
@@ -72,7 +74,11 @@ ok( eqarray( [sort &show_fields('Foo', 'Private')],
 
 # We should get compile time failures field name typos
 eval q(my Foo $obj = Foo->new; $obj->{notthere} = "");
-ok( $@ && $@ =~ /^No such(?: [\w-]+)? field "notthere"/i );
+
+my $error = $Has_PH ? 'No such(?: [\w-]+)? field "notthere"'
+                    : q[Attempt to access disallowed key 'notthere' in a ].
+                      q[restricted hash at ];
+ok( $@ && $@ =~ /^$error/i );
 
 
 foreach (Foo->new) {
@@ -85,9 +91,7 @@ foreach (Foo->new) {
     $obj->{_no}   = 'Yeah';
     @{$obj}{qw(what who _up_yours)} = ('Ahh', 'Moo', 'Yip');
 
-    # Compile-time hashes don't act like hash slices properly yet. :(
-    # this has been perlbug'd.
     while(my($k,$v) = each %test) {
-        ok($obj->[$Foo::FIELDS{$k}] eq $v);
+        ok($obj->{$k} eq $v);
     }
 }
