@@ -3,11 +3,12 @@ package fields;
 use strict;
 use vars qw($VERSION);
 
-use Class::Fields qw(:Attribs :Fields);
+use Class::Fields::Fuxor;
+use Class::Fields::Attribs;
 
 use constant SUCCESS => 1;
 
-$VERSION = "0.11";
+$VERSION = "0.12";
 
 sub import {
     # Dump the class.
@@ -15,7 +16,7 @@ sub import {
     
     my $package = caller(0);
     
-	return SUCCESS unless @_;
+    return SUCCESS unless @_;
 
     add_fields($package, PRIVATE, grep {/^_/} @_);
     add_fields($package, PUBLIC,  grep {!/^_/} @_);
@@ -91,7 +92,7 @@ constructor like this does the job:
 
 =head1 SEE ALSO
 
-L<base>, L<public>, L<private>, L<protected>,
+L<base>, L<public>, L<private>, L<protected>, L<Class::Fields>
 L<perlref/Pseudo-hashes: Using an array as a hash>
 
 =cut
