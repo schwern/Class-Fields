@@ -4,9 +4,10 @@ use strict;
 no strict 'refs';
 use vars qw(@ISA @EXPORT $VERSION);
 
-use Class::Fields qw(:Attribs :Fields);
+use Class::Fields::Fuxor;
+use Class::Fields::Attribs;
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -21,35 +22,35 @@ sub inherit_fields
 {
     my($derived, $base) = @_;
 
-	return SUCCESS unless $base;
+    return SUCCESS unless $base;
 
-	my $base_fields = get_fields($base);
+    my $base_fields = get_fields($base);
 
     if (has_fields($derived)) {
-		require Carp;
-		Carp::croak("Inherited %FIELDS from '$base' can't override existing %FIELDS in '$derived'");
+        require Carp;
+        Carp::croak("Inherited %FIELDS from '$base' can't override existing %FIELDS in '$derived'");
     } else {
-		my $derived_fields = get_fields($derived);
+        my $derived_fields = get_fields($derived);
 
-		my $battr = get_attr($base);
-		my $dattr = get_attr($derived);
+        my $battr = get_attr($base);
+        my $dattr = get_attr($derived);
 
-		# XXX I'm not entirely sure why this is here.
-		$dattr->[@$battr-1] = undef;
+        # XXX I'm not entirely sure why this is here.
+        $dattr->[@$battr-1] = undef;
 
-		# Iterate through the base's fields adding all the non-private
-		# ones to the derived class.  Hang on to the original attribute
-		# (Public, Private, etc...) and add Inherited.
-		# This is all too complicated to do efficiently with add_fields().
-		while (my($k,$v) = each %$base_fields) {
+        # Iterate through the base's fields adding all the non-private
+        # ones to the derived class.  Hang on to the original attribute
+        # (Public, Private, etc...) and add Inherited.
+        # This is all too complicated to do efficiently with add_fields().
+        while (my($k,$v) = each %$base_fields) {
             next if $battr->[$v-1] & PRIVATE;
             $dattr->[$v-1] = INHERITED | $battr->[$v-1];
 
-			# Derived fields must be kept in the same position as the
-			# base in order to make "static" typing work with psuedo-hashes.
-			# Alas, this kills multiple field inheritance.
+            # Derived fields must be kept in the same position as the
+            # base in order to make "static" typing work with psuedo-hashes.
+            # Alas, this kills multiple field inheritance.
             $derived_fields->{$k} = $v;
-		}
+        }
     }
 }
 
@@ -92,4 +93,4 @@ fields.pm
 
 =head1 SEE ALSO
 
-L<base>, L<Class::Fields::Attribs>
+L<base>, L<Class::Fields>
