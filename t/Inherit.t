@@ -14,9 +14,9 @@ my $test_num = 1;
 BEGIN { $| = 1; $^W = 1; }
 END {print "not ok $test_num\n" unless $loaded;}
 print "1..$Total_tests\n";
-use Class::Fields::Inheritance;
+use Class::Fields;
 $loaded = 1;
-print "ok $test_num\n";
+print "ok $test_num - Compile\n";
 $test_num++;
 ######################### End of black magic.
 
@@ -24,7 +24,7 @@ $test_num++;
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 sub ok {
-	my($test, $name) = shift;
+	my($test, $name) = @_;
 	print "not " unless $test;
 	print "ok $test_num";
 	print " - $name" if defined $name;
@@ -46,49 +46,23 @@ sub eqarray  {
 }
 
 # Change this to your # of ok() calls + 1
-BEGIN { $Total_tests = 11 }
+BEGIN { $Total_tests = 5; }
 
-package Foo;
+package Yar;
 
-use Class::Fields::Inheritance;
-
-# Check that the attributes exported okay.
-::ok( Class::Fields::Inheritance::_PRIVATE 	== _PRIVATE );
-::ok( Class::Fields::Inheritance::_PUBLIC  	== _PUBLIC );
-::ok( Class::Fields::Inheritance::_INHERITED 	== _INHERITED );
-::ok( Class::Fields::Inheritance::_PROTECTED	== _PROTECTED );
-
-
-package Bar;
-
-use Class::Fields::Inheritance qw(:Inherit :Attribs);
-BEGIN {
-	add_fields('Yar', _PUBLIC, 		qw(Pub Pants));
-	add_fields('Yar', _PRIVATE, 	qw(_Priv _Pantaloons));
-	add_fields('Yar', _PROTECTED,	qw(_Prot Armoured));
-}
-::ok( ::eqarray([sort keys %Yar::FIELDS], 
-				[sort qw(Pub Pants _Priv _Pantaloons _Prot Armoured)] 
-			   ) 
-	);
-
-my Yar $yar = [];
-
-eval {
-	$yar->{Pub} 	= "Foo";
-	$yar->{_Priv} 	= "Bar";
-	$yar->{Armoured} = "Hey";
-};
-::ok($@ eq '' or $@ !~ /no such field/i);
-
+use public 	qw( Pub Pants );
+use private qw( _Priv _Pantaloons );
+use protected	qw( _Prot Armoured );
 
 BEGIN {
-	inherit('Pants', 'Yar');
+	use Class::Fields::Inherit;
+	inherit_fields('Pants', 'Yar');
 }
 
 ::ok( ::eqarray([sort keys %Pants::FIELDS], 
 				[sort qw(Pub Pants _Prot Armoured)] 
-			   ) 
+			   ),
+	  'inherit_fields()'
 	);
 
 # Can't use compile time (my Pants) because then eval won't catch
