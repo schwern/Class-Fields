@@ -3,6 +3,8 @@
 
 my $Has_PH = $] < 5.009;
 
+$SIG{__WARN__} = sub { return if $_[0] =~ /^Pseudo-hashes are deprecated/ };
+
 
 ######################### We start with some black magic to print on failure.
 
