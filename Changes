@@ -1,5 +1,10 @@
 Revision history for Perl extension Class::Fields.
 
+0.14  Fri Aug 24 19:42:03 EDT 2001
+    * Fixed a bug with base.pm accidentally setting $VERSION to
+      '-1, set by base.pm' even if it existed.
+    - Added some warnings about using base & fields in the wrong order.
+
 0.13  Thu Apr  5 21:22:58 BST 2001
     * Fixed subtle bug with base.pm and "use Foo 1.3"
     - Fixed docs about show_fields()
