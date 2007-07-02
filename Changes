@@ -1,3 +1,8 @@
+0.202
+    Test Fixes
+    - A warning changed in base or fields.pm which broke t/bugs.t.
+      [rt.cpan.org 5293]
+
 0.201 Thu Aug 28 13:41:18 PDT 2003
     - Left INSTALLDIRS=perl in after base/fields was removed.
 
