@@ -1,4 +1,4 @@
-0.202
+0.202  Sun Jul  1 22:43:41 PDT 2007
     Test Fixes
     - A warning changed in base or fields.pm which broke t/bugs.t.
       [rt.cpan.org 5293]
