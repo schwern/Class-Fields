@@ -1,9 +1,4 @@
-# A template for Makefile.PL used by Arena Networks.
-# - Set the $PACKAGE variable to the name of your module.
-# - Set $LAST_API_CHANGE to reflect the last version you changed the API 
-#   of your module.
-# - Fill in your dependencies in PREREQ_PM
-# Alternatively, you can say the hell with this and use h2xs.
+#!/usr/bin/perl
 
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -51,11 +46,8 @@ WriteMakefile(
     VERSION_FROM        => 'lib/Class/Fields.pm', # finds $VERSION
     PREREQ_PM           => { Carp               => 0,
                              constant           => 0,
-                             Carp::Assert       => 0,
+                             'Carp::Assert'     => 0,
                              base               => 2.0,
-                           },
-    'dist'              => { COMPRESS   => 'gzip -9',
-                             SUFFIX     => '.gz',
-                             DIST_DEFAULT   => 'all tardist',
+                             'Test::More'       => 0.47,
                            },
 );
