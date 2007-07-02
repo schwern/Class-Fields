@@ -77,8 +77,8 @@ use public qw(f);
 use base qw(Foo); # base comes after 'use public'
 
 
-::ok( $warnings eq <<WARN,    'Improper use of fields & base warned about' );
+::ok( $warnings =~ <<WARN,    'Improper use of fields & base warned about' );
 Bar is inheriting from Foo but already has its own fields!
-This will cause problems with pseudo-hashes.
+This will cause problems.*
 Be sure you use base BEFORE declaring fields
 WARN
