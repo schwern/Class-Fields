@@ -1,16 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More tests => 2;
-
-
-# Here we emulate a bug with base.pm not finding the Exporter version
-# for some reason.
-use lib qw(t);
-use base qw(Dummy);
-
-is( $Dummy::VERSION, 5.562,       "base.pm doesn't confuse the version" );
-
+use Test::More tests => 1;
 
 # Test a bug reported by Pasha Sadri
 # <NEBBIPJPBMMMDNHELFELOEEECHAA.pasha@yahoo-inc.com>
