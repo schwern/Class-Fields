@@ -21,7 +21,7 @@ require Exporter;
               is_field
             );
 
-$VERSION = '0.203';
+$VERSION = '0.204';
 
 use Class::Fields::Fuxor;
 use Class::Fields::Attribs;
@@ -72,6 +72,11 @@ Class::Fields - Inspect the fields of a class.
 
 
 =head1 DESCRIPTION
+
+B<NOTE> This module, and the fields system, is largely obsolete.
+Please consider using one of the many accessor generating modules, or
+just skip directly to a complete object oriented system like L<Moose>
+or L<Mouse>.
 
 A collection of utility functions/methods for examining the data
 members of a class.  It provides a nice, high-level interface that
@@ -447,6 +452,16 @@ technique.
 
 =back
 
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2001-2011 by Michael G Schwern E<lt>schwern@pobox.comE<gt>.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+See L<http://dev.perl.org/licenses/artistic.html>
+
+
 =head1 AUTHOR
 
 Michael G Schwern <schwern@pobox.com> with much code liberated from the
@@ -460,10 +475,12 @@ Thanks to Tels for his big feature request/bug report.
 
 =head1 SEE ALSO
 
+This module and the L<fields> system are obsolete.
+L<Moose>, L<Mouse>, L<Class::Accessor> are better alternatives.
+
 L<fields>, L<public>, L<private>, L<protected>
 
-Modules with similar effects...
-L<Tie::SecureHash>, L<Class::Contract>
+Modules with similar effects... L<Tie::SecureHash>
 
 =cut
 

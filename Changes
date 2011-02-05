@@ -1,3 +1,11 @@
+0.204  Sat, 05 Feb 2011 14:24:49 +1100
+    Docs
+    - Documented that this module is obsolete.
+
+    Misc
+    - Clarified the license.
+
+
 0.203  Fri Sep  7 16:59:15 PDT 2007
     Test Fixes
     - Moved some tests that were really testing base.pm to base.

@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
 
 require 5.005;
 
@@ -41,13 +39,19 @@ CHANGE_WARN
 }
 
 
+my $mm_ver = $ExtUtils::MakeMaker::VERSION;
 WriteMakefile(
     NAME                => $PACKAGE,
-    VERSION_FROM        => 'lib/Class/Fields.pm', # finds $VERSION
+
+    VERSION_FROM        => 'lib/Class/Fields.pm',
+    ABSTRACT_FROM       => "lib/Class/Fields.pm",
+    AUTHOR              => 'Michael G Schwern <schwern@pobox.com>',
+
     PREREQ_PM           => { Carp               => 0,
                              constant           => 0,
                              'Carp::Assert'     => 0,
                              base               => 2.0,
                              'Test::More'       => 0.47,
                            },
+    ($mm_ver >= 6.31 ? (LICENSE => 'perl') : ()),
 );
